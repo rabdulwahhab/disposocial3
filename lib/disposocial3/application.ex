@@ -14,6 +14,14 @@ defmodule Disposocial3.Application do
        repos: Application.fetch_env!(:disposocial3, :ecto_repos), skip: skip_migrations?()},
       {DNSCluster, query: Application.get_env(:disposocial3, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: Disposocial3.PubSub},
+      # Start Phoenix presence
+      Disposocial3Web.Presence,
+      # Start Dispo Server Process Registry
+      {Registry, keys: :unique, name: Disposocial3.DispoRegistry},
+      # Start Dispo DynamicSupervisor
+      Disposocial3.DispoSupervisor,
+      # Start DispoReaper
+      Disposocial3.DispoReaper,
       # Start a worker by calling: Disposocial3.Worker.start_link(arg)
       # {Disposocial3.Worker, arg},
       # Start to serve requests, typically the last entry

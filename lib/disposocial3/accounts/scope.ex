@@ -18,7 +18,7 @@ defmodule Disposocial3.Accounts.Scope do
 
   alias Disposocial3.Accounts.User
 
-  defstruct user: nil
+  defstruct user: nil, root_user: nil
 
   @doc """
   Creates a scope for the given user.
@@ -30,4 +30,6 @@ defmodule Disposocial3.Accounts.Scope do
   end
 
   def for_user(nil), do: nil
+
+  def for_root(user), do: %__MODULE__{root_user: user}
 end
