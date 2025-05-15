@@ -4,6 +4,7 @@ defmodule Disposocial3.Accounts.User do
 
   schema "users" do
     field :email, :string
+    field :username, :string
     field :password, :string, virtual: true, redact: true
     field :hashed_password, :string, redact: true
     field :confirmed_at, :utc_datetime
@@ -130,5 +131,11 @@ defmodule Disposocial3.Accounts.User do
   def valid_password?(_, _) do
     Bcrypt.no_user_verify()
     false
+  end
+
+  def registration_changeset(user, _attrs, opts \\ []) do
+    user
+    |> unique_constraint(:username)
+    |> validate_length(:username, min: 2, max: 80)
   end
 end
