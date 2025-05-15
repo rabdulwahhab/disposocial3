@@ -12,7 +12,7 @@ defmodule Disposocial3.Repo.Migrations.CreateDispos do
       add :password, :string
       add :hashed_password, :string
       add :description, :string
-      add :user_id, references(:users, type: :id, on_delete: :delete_all)
+      add :user_id, references(:users, type: :id, on_delete: :nothing)
 
       timestamps(type: :utc_datetime)
     end
