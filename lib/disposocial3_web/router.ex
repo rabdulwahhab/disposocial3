@@ -57,6 +57,10 @@ defmodule Disposocial3Web.Router do
       live "/dispos/new", DispoLive.Form, :new
       live "/dispos/:id", DispoLive.Show, :show
       live "/dispos/:id/edit", DispoLive.Form, :edit
+      # live "/posts", PostLive.Index, :index
+      # live "/posts/new", PostLive.Form, :new
+      # live "/posts/:id", PostLive.Show, :show
+      # live "/posts/:id/edit", PostLive.Form, :edit
     end
 
     post "/users/update-password", UserSessionController, :update_password
