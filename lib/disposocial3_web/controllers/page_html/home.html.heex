@@ -1,8 +1,10 @@
 <Layouts.container flash={@flash} current_scope={@current_scope}>
   <UI.hero title={"Disposocial"} subtitle={"Disposable, Local, Real-time chat"}>
   <div class="join gap-2">
+    <%= if is_nil(@current_scope) do %>
     <.button navigate={~p"/users/register"} class="btn-primary btn-lg join-item">Register</.button>
     <.button navigate={~p"/users/log-in"} class="btn-secondary btn-lg join-item">Log in</.button>
+    <% end %>
     <.button navigate={~p"/discover"} class="btn-success btn-lg join-item">Discover</.button>
   </div>
   </UI.hero>

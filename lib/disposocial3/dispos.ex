@@ -9,6 +9,8 @@ defmodule Disposocial3.Dispos do
   alias Disposocial3.Dispos.Dispo
   alias Disposocial3.Accounts.Scope
 
+  @radius_of_earth 3_959 # in miles (converted from 6_371 km)
+
   @doc """
   Subscribes to scoped notifications about any dispo changes.
 
@@ -142,6 +144,14 @@ defmodule Disposocial3.Dispos do
       {:error, %Ecto.Changeset{}}
 
   """
+  def delete_dispo(%Dispo{} = dispo) do
+    Repo.delete(dispo)
+  end
+
+  def delete_dispo!(%Dispo{} = dispo) do
+    Repo.delete!(dispo)
+  end
+
   def delete_dispo(%Scope{} = scope, %Dispo{} = dispo) do
     true = dispo.user_id == scope.user.id
 

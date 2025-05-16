@@ -68,17 +68,27 @@ defmodule Disposocial3Web.Layouts do
     """
   end
 
+  attr :flash, :map, required: true, doc: "the map of flash messages"
+
+  attr :current_scope, :map,
+    default: nil,
+    doc: "the current [scope](https://hexdocs.pm/phoenix/scopes.html)"
+
+  slot :inner_block, required: true
   def container(assigns) do
     ~H"""
     <header class="navbar px-4 sm:px-6 lg:px-8">
       <div class="flex-1">
         <a href="/" class="flex-1 flex w-fit items-center gap-2">
           <img src={~p"/images/logo.svg"} width="36" />
-          <span class="text-sm font-semibold">v{Application.spec(:phoenix, :vsn)}</span>
+          <span class="text-sm font-semibold">v{Application.spec(:disposocial3, :vsn)}</span>
         </a>
       </div>
       <div class="flex-none">
         <ul class="flex flex-column px-1 space-x-4 items-center">
+          <li>
+            <.link href={~p"/discover"} class="btn btn-ghost">Discover</.link>
+          </li>
         <%= if @current_scope do %>
           <li>
             <.link href={~p"/users/settings"} class="btn btn-ghost">{@current_scope.user.email}</.link>
@@ -100,7 +110,7 @@ defmodule Disposocial3Web.Layouts do
         </ul>
       </div>
     </header>
-    <div class="max-w-4xl mx-auto flex flex-col gap-1">
+    <div class="max-w-4xl mx-auto flex flex-col gap-1 sm:px-6 lg:px-8">
       {render_slot(@inner_block)}
     </div>
     <.flash_group flash={@flash} />
