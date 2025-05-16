@@ -7,7 +7,7 @@ defmodule Disposocial3Web.UserLive.Settings do
 
   def render(assigns) do
     ~H"""
-    <Layouts.app flash={@flash} current_scope={@current_scope}>
+    <Layouts.container flash={@flash} current_scope={@current_scope}>
       <.header class="text-center">
         Account Settings
         <:subtitle>Manage your account email address and password settings</:subtitle>
@@ -59,7 +59,7 @@ defmodule Disposocial3Web.UserLive.Settings do
           Save Password
         </.button>
       </.form>
-    </Layouts.app>
+    </Layouts.container>
     """
   end
 

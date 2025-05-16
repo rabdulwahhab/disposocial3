@@ -5,7 +5,7 @@ defmodule Disposocial3Web.UserLive.Login do
 
   def render(assigns) do
     ~H"""
-    <Layouts.app flash={@flash} current_scope={@current_scope}>
+    <Layouts.container flash={@flash} current_scope={@current_scope}>
       <div class="mx-auto max-w-sm space-y-4">
         <.header class="text-center">
           <p>Log in</p>
@@ -88,7 +88,7 @@ defmodule Disposocial3Web.UserLive.Login do
           </.button>
         </.form>
       </div>
-    </Layouts.app>
+    </Layouts.container>
     """
   end
 
