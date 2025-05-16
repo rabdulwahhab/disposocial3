@@ -13,8 +13,6 @@ defmodule Disposocial3.DispoServer do
     "dispo:#{dispo_id}"
   end
 
-  defp scope, do: Scope.for_root(__MODULE__)
-
   # API
 
   def start(id) do

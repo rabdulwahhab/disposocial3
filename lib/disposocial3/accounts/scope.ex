@@ -31,5 +31,4 @@ defmodule Disposocial3.Accounts.Scope do
 
   def for_user(nil), do: nil
 
-  def for_root(user), do: %__MODULE__{root_user: user}
 end

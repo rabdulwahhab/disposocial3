@@ -25,10 +25,9 @@ defmodule Disposocial3.DispoReaper do
     if zombie_dispos == [] do
       Logger.info("DispoReaper: nothing to do")
     else
-      Enum.each(zombie_dispos, fn dispo -> Dispos.delete_dispo!(scope(), dispo) end)
+      Enum.each(zombie_dispos, fn dispo -> Dispos.delete_dispo!(dispo) end)
       Logger.info("DispoReaper: cleaned up #{length(zombie_dispos)} Dispo(s)")
     end
   end
 
-  defp scope, do: Scope.for_root(__MODULE__)
 end
