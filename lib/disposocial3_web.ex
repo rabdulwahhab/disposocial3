@@ -84,7 +84,7 @@ defmodule Disposocial3Web do
 
       # Common modules used in templates
       alias Phoenix.LiveView.JS
-      alias Disposocial3Web.Layouts
+      alias Disposocial3Web.{Layouts, UI}
 
       # Routes generation with the ~p sigil
       unquote(verified_routes())

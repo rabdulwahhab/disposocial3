@@ -88,22 +88,24 @@ defmodule Disposocial3Web.CoreComponents do
       <.button navigate={~p"/"}>Home</.button>
   """
   attr :rest, :global, include: ~w(href navigate patch method)
-  attr :variant, :string, values: ~w(primary)
+  attr :class, :string, default: ""
+  attr :variant, :string, values: ~w(primary), default: "primary"
   slot :inner_block, required: true
 
   def button(%{rest: rest} = assigns) do
     variants = %{"primary" => "btn-primary", nil => "btn-primary btn-soft"}
-    assigns = assign(assigns, :class, Map.fetch!(variants, assigns[:variant]))
+    # assigns = assign(assigns, :class, Map.fetch!(variants, assigns[:variant]))
 
     if rest[:href] || rest[:navigate] || rest[:patch] do
       ~H"""
-      <.link class={["btn", @class]} {@rest}>
+
+      <.link class={"btn btn-#{@variant} " <> @class} {@rest}>
         {render_slot(@inner_block)}
       </.link>
       """
     else
       ~H"""
-      <button class={["btn", @class]} {@rest}>
+      <button class={"btn btn-#{@variant} " <> @class} {@rest}>
         {render_slot(@inner_block)}
       </button>
       """
