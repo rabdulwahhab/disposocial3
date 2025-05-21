@@ -1,11 +1,13 @@
 defmodule Disposocial3.Posts.Post do
   use Ecto.Schema
   import Ecto.Changeset
+  alias Disposocial3.Accounts.User
+  alias Disposocial3.Dispos.Dispo
 
   schema "posts" do
     field :body, :string
-    field :user_id, :id
-    field :dispo_id, :id
+    belongs_to :user, User
+    belongs_to :dispo, Dispo
 
     timestamps(type: :utc_datetime)
   end

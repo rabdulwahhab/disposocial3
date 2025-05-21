@@ -1,6 +1,8 @@
 defmodule Disposocial3.Dispos.Dispo do
   use Ecto.Schema
   import Ecto.Changeset
+  alias Disposocial3.Accounts.User
+  alias Disposocial3.Posts.Post
 
   schema "dispos" do
     field :death, :utc_datetime
@@ -12,7 +14,8 @@ defmodule Disposocial3.Dispos.Dispo do
     field :password, :string, virtual: true, redact: true
     field :hashed_password, :string, redact: true
     field :description, :string
-    field :user_id, :id
+    belongs_to :user, User
+    has_many :posts, Post
 
     timestamps(type: :utc_datetime)
   end
