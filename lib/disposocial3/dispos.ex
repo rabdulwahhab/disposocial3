@@ -64,6 +64,10 @@ defmodule Disposocial3.Dispos do
     Repo.get_by!(Dispo, id: id, user_id: scope.user.id)
   end
   def get_dispo(%Scope{} = scope, id), do: Repo.get_by(Dispo, id: id, user_id: scope.user.id)
+  def get_dispo(id) do
+    q = from(d in Dispo, where: d.id == ^id, preload: [:user])
+    Repo.one(q)
+  end
 
   def get_death_by_id(id) do
     q = from(d in Dispo, where: d.id == ^id, select: d.death)

@@ -141,7 +141,18 @@ defmodule Disposocial3.Posts do
   """
   def change_post(%Scope{} = scope, %Post{} = post, attrs \\ %{}) do
     true = post.user_id == scope.user.id
+    true = post.dispo_id == scope.dispo.id
 
     Post.changeset(post, attrs, scope)
+  end
+
+  # defp present(post) do
+  #   Map.take(post, [:id, :body, :media_hash, :user, :inserted_at])
+  # end
+
+  def recent_posts(id) do
+    # Subquery based on example here: https://hexdocs.pm/ecto/Ecto.Query.html#preload/3
+    q = from(p in Post, where: p.dispo_id == ^id, limit: 40, order_by: [desc: p.inserted_at], preload: [:user])
+    Repo.all(q)
   end
 end

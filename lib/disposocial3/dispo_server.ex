@@ -16,23 +16,29 @@ defmodule Disposocial3.DispoServer do
   # API
 
   def start(id) do
-    # Start a new DispoServer Process and get it supervised
-    spec = %{
-      id: __MODULE__,
-      start: {__MODULE__, :start_link, [id]},
-      restart: :transient
-    }
+    # Check the DispoServer is not already running
+    if Registry.lookup(DispoRegistry, id) == [] do
+      # Start a new DispoServer Process and get it supervised
+      spec = %{
+        id: __MODULE__,
+        start: {__MODULE__, :start_link, [id]},
+        restart: :transient
+      }
 
-    case DispoSupervisor.start_child(spec) do
-      {:ok, _} ->
-        Logger.info("Started DispoServer for Dispo id = #{id}")
-        :ok
-      {:ok, _, _} ->
-        Logger.info("Started DispoServer for Dispo id = #{id}")
-        :ok
-      other ->
-        Logger.error("Failed starting DispoServer for Dispo id = #{id}: #{inspect(other)}")
-        :error
+      case DispoSupervisor.start_child(spec) do
+        {:ok, _} ->
+          Logger.info("Started DispoServer for Dispo id = #{id}")
+          :ok
+        {:ok, _, _} ->
+          Logger.info("Started DispoServer for Dispo id = #{id}")
+          :ok
+        other ->
+          Logger.error("Failed starting DispoServer for Dispo id = #{id}: #{inspect(other)}")
+          :error
+      end
+    else
+      Logger.info("DispoServer for Dispo id = #{id} already running...")
+      :noop
     end
   end
 
@@ -88,14 +94,9 @@ defmodule Disposocial3.DispoServer do
     Logger.info("Starting DispoServer #{inspect(self())} for Dispo id = #{id}")
 
     if dispo = Dispos.get_dispo(id) do
-      remove_fields = [:user, :posts, :__meta__]
-      init_state =
-        dispo
-        |> Map.from_struct()
-        |> Map.drop(remove_fields)
       case init_death(dispo) do
         :ok -> Logger.info("Initialized DispoServer #{inspect(self())} (#{dispo.name}:#{dispo.id})")
-              {:ok, init_state}
+              {:ok, dispo}
         {:error, msg} -> {:stop, msg}
       end
     else
@@ -127,7 +128,7 @@ defmodule Disposocial3.DispoServer do
 
   @impl true
   def handle_call(:get_dispo, _from, state) do
-    {:reply, Dispos.present(state), state}
+    {:reply, state, state}
   end
 
   @impl true
@@ -245,7 +246,7 @@ defmodule Disposocial3.DispoServer do
     # self destruct
     Endpoint.broadcast_from(self(), dispo_topic(dispo_id), "angel_of_death", %{})
     Process.sleep(2_000)  # minimal sleep to let all connected users disconnect
-    dispo = Dispos.get_dispo!(dispo_id)
+    dispo = Dispos.get_dispo(dispo_id)
     {:ok, _} = Dispos.delete_dispo(dispo)
     Logger.notice("Dispo #{dispo_name}(#{dispo_id}) deleted. Shutting down associated DispoServer")
     # Goodbye
