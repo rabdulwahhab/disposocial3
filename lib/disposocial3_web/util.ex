@@ -1,4 +1,4 @@
-defmodule Disposocial3.Util do
+defmodule Disposocial3Web.Util do
   @moduledoc """
   Contains various utility functions used throughout the app.
   """

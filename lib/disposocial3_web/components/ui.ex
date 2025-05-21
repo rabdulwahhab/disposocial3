@@ -6,7 +6,6 @@ defmodule Disposocial3Web.UI do
   """
   use Disposocial3Web, :html
 
-  alias Disposocial3.Util
   embed_templates "ui/*"
 
   def hero(assigns) do
