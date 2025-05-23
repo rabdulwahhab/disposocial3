@@ -79,6 +79,7 @@ defmodule Disposocial3.Posts do
            %Post{}
            |> Post.changeset(attrs, scope)
            |> Repo.insert() do
+      post = Repo.preload post, :user
       broadcast(scope, {:created, post})
       {:ok, post}
     end

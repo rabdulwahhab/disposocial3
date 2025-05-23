@@ -17,6 +17,7 @@ defmodule Disposocial3.Posts.Post do
     post
     |> cast(attrs, [:body, :dispo_id])
     |> validate_required([:body, :dispo_id])
+    |> validate_length(:body, min: 1, max: 500)
     |> put_change(:user_id, user_scope.user.id)
   end
 end

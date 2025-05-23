@@ -87,13 +87,13 @@ defmodule Disposocial3Web.CoreComponents do
       <.button phx-click="go" variant="primary">Send!</.button>
       <.button navigate={~p"/"}>Home</.button>
   """
-  attr :rest, :global, include: ~w(href navigate patch method)
+  attr :rest, :global, include: ~w(href navigate patch method disabled)
   attr :class, :string, default: ""
   attr :variant, :string, values: ~w(primary), default: "primary"
   slot :inner_block, required: true
 
   def button(%{rest: rest} = assigns) do
-    variants = %{"primary" => "btn-primary", nil => "btn-primary btn-soft"}
+    # variants = %{"primary" => "btn-primary", nil => "btn-primary btn-soft"}
     # assigns = assign(assigns, :class, Map.fetch!(variants, assigns[:variant]))
 
     if rest[:href] || rest[:navigate] || rest[:patch] do
@@ -231,7 +231,7 @@ defmodule Disposocial3Web.CoreComponents do
           id={@id}
           name={@name}
           class={[
-            @class || "w-full textarea",
+            @class || "w-full textarea textarea-ghost bg-base-200 resize-none",
             @errors != [] && (@error_class || "textarea-error")
           ]}
           {@rest}
