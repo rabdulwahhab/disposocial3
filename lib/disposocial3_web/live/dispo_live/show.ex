@@ -49,7 +49,7 @@ defmodule Disposocial3Web.DispoLive.Show do
             <p class="text-error">{Util.display_death_datetime(@dispo.death)}</p>
           </li>
           <li>
-            <div class="collapse collapse-arrow">
+            <div class="collapse collapse-arrow collapse-open">
               <input type="checkbox" />
               <div class="collapse-title font-semibold content-center">
                 <.icon name="hero-users" />
