@@ -12,9 +12,9 @@ defmodule Disposocial3Web.UI do
 
   def hero(assigns) do
     ~H"""
-    <div class="hero bg-base-200 h-80 mt-30 rounded-md">
+    <div class="hero bg-base-200 h-80 mt-30 w-full rounded-md">
       <div class="hero-content text-center">
-        <div class="max-w-md">
+        <div>
           <h1 class="text-5xl font-bold">{@title}</h1>
           <p class="py-6">
             {@subtitle}

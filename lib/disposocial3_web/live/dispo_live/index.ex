@@ -12,14 +12,15 @@ defmodule Disposocial3Web.DispoLive.Index do
   @impl true
   def render(assigns) do
     ~H"""
-    <Layouts.container flash={@flash}>
-    <.header>Dispos near you</.header>
-    <div class="flex flex-row flex-wrap gap-2 justify-between">
-      <div class="stats">
+    <Layouts.container flash={@flash} current_scope={@current_scope}>
+    <.header class="text-center">Dispos near you</.header>
+    <div class="w-auto lg:w-3xl space-y-4 lg:mx-auto">
+    <div class="flex flex-col items-center lg:flex-row gap-2 justify-between lg:justify-center">
+      <div class="stats lg:grow">
         <div class="stat px-0">
           <div class="stat-title">Your location:</div>
           <div class="stat-value">
-            <div phx-hook="GetLocation" id="location-hook">
+            <div phx-hook="GetLocation" id="location-hook" class="text-2xl">
               <%= if @location do %>
               <h6>{"#{elem(@location, 0)}, #{elem(@location, 1)}"}</h6>
               <% else %>
@@ -32,16 +33,12 @@ defmodule Disposocial3Web.DispoLive.Index do
           </div>
         </div>
       </div>
-      <div>
-      </div>
-      <div>
-        <.form for={@radius_form}>
-          <.input label="Discover radius (miles)" type="select" phx-change="update_radius" name="discovery_radius" field={@radius_form[:discovery_radius]} options={[1, 5, 10, 25, "global"]}/>
-        </.form>
-        <.button patch={~p"/dispos/new"} class="btn-success">
-          Create a Dispo <.icon name="hero-plus" />
-        </.button>
-      </div>
+      <.form for={@radius_form}>
+        <.input label="Discover radius (miles)" type="select" phx-change="update_radius" name="discovery_radius" field={@radius_form[:discovery_radius]} options={[1, 5, 10, 25, "global"]}/>
+      </.form>
+      <.button patch={~p"/dispos/new"} class="btn-success btn-lg">
+        Create a Dispo <.icon name="hero-plus" />
+      </.button>
     </div>
     <section class="flex flex-col gap-4 sm:mt-2 lg:mt-6">
       <div :if={@location} id="dispos-empty" class="only:block hidden text-center">
@@ -53,6 +50,7 @@ defmodule Disposocial3Web.DispoLive.Index do
       </div>
       <UI.dispo :for={{dispo_id, dispo} <- @streams.local_dispos} id={dispo_id} dispo={dispo} />
     </section>
+    </div>
     </Layouts.container>
     """
   end

@@ -49,7 +49,7 @@ defmodule Disposocial3Web.Layouts do
   def container(assigns) do
     ~H"""
     <.nav_bar flash={@flash} current_scope={@current_scope} />
-    <main class="flex-1 mx-auto flex flex-col gap-1 sm:px-6 lg:px-8">
+    <main class="flex-1 flex flex-col gap-1 sm:px-6 lg:px-8">
       {render_slot(@inner_block)}
     </main>
     <.flash_group flash={@flash} />
@@ -63,39 +63,46 @@ defmodule Disposocial3Web.Layouts do
     doc: "the current [scope](https://hexdocs.pm/phoenix/scopes.html)"
   def nav_bar(assigns) do
     ~H"""
-    <header class="navbar px-4 sm:px-6 lg:px-8">
+    <div class="navbar bg-base-100 shadow-sm">
       <div class="flex-1">
         <a href="/" class="flex-1 flex w-fit items-center gap-2">
           <img src={~p"/images/logo.svg"} width="36" />
-          <span class="text-sm font-semibold">v{Application.spec(:disposocial3, :vsn)}</span>
+          <span class="text-xs font-light">v{Application.spec(:disposocial3, :vsn)}</span>
         </a>
       </div>
       <div class="flex-none">
-        <ul class="flex flex-column px-1 space-x-4 items-center">
+        <ul class="menu menu-horizontal px-1 gap-1">
           <li>
-            <.link href={~p"/discover"} class="btn btn-ghost">Discover</.link>
+            <.link href={~p"/discover"} class="">Discover</.link>
           </li>
-        <%= if @current_scope do %>
+          <%= if @current_scope do %>
           <li>
-            <.link href={~p"/users/settings"} class="btn btn-ghost">{@current_scope.user.email}</.link>
+            <details>
+              <summary>{@current_scope.user.username}</summary>
+              <ul class="bg-base-100 rounded-t-none p-2">
+                <li>
+                  <.link href={~p"/users/settings"} class="btn btn-ghost">Settings</.link>
+                </li>
+                <li>
+                  <.link href={~p"/users/log-out"} class="btn btn-error btn-soft" method="delete">Log out</.link>
+                </li>
+              </ul>
+            </details>
+          </li>
+          <% else %>
+          <li>
+            <.link href={~p"/users/log-in"} class="">Log in</.link>
           </li>
           <li>
-            <.link href={~p"/users/log-out"} class="btn btn-ghost" method="delete">Log out</.link>
+            <.link href={~p"/users/register"} class="btn btn-primary btn-soft font-normal">Register <span aria-hidden="true">&rarr;</span></.link>
           </li>
-        <% else %>
-          <li>
-            <.link href={~p"/users/log-in"} class="btn btn-ghost">Log in</.link>
-          </li>
-          <li>
-            <.link href={~p"/users/register"} class="btn btn-primary">Register <span aria-hidden="true">&rarr;</span></.link>
-          </li>
-        <% end %>
+          <% end %>
           <li>
             <.theme_toggle />
           </li>
         </ul>
       </div>
-    </header>
+    </div>
     """
   end
 
@@ -149,26 +156,26 @@ defmodule Disposocial3Web.Layouts do
   """
   def theme_toggle(assigns) do
     ~H"""
-    <div class="card relative flex flex-row items-center border-2 border-base-300 bg-base-300 rounded-full">
+    <div class="card relative flex flex-row items-center border-2 border-base-300 bg-base-300 rounded-full p-1">
       <div class="absolute w-1/3 h-full rounded-full border-1 border-base-200 bg-base-100 brightness-200 left-0 [[data-theme=light]_&]:left-1/3 [[data-theme=dark]_&]:left-2/3 transition-[left]" />
 
       <button
         phx-click={JS.dispatch("phx:set-theme", detail: %{theme: "system"})}
-        class="flex p-2 cursor-pointer w-1/3"
+        class="btn-sm flex p-1 cursor-pointer w-1/3"
       >
         <.icon name="hero-computer-desktop-micro" class="size-4 opacity-75 hover:opacity-100" />
       </button>
 
       <button
         phx-click={JS.dispatch("phx:set-theme", detail: %{theme: "light"})}
-        class="flex p-2 cursor-pointer w-1/3"
+        class="btn-sm flex p-1 cursor-pointer w-1/3"
       >
         <.icon name="hero-sun-micro" class="size-4 opacity-75 hover:opacity-100" />
       </button>
 
       <button
         phx-click={JS.dispatch("phx:set-theme", detail: %{theme: "dark"})}
-        class="flex p-2 cursor-pointer w-1/3"
+        class="btn-sm flex p-1 cursor-pointer w-1/3"
       >
         <.icon name="hero-moon-micro" class="size-4 opacity-75 hover:opacity-100" />
       </button>
