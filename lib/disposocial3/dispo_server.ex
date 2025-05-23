@@ -248,7 +248,7 @@ defmodule Disposocial3.DispoServer do
     Process.sleep(2_000)  # minimal sleep to let all connected users disconnect
     dispo = Dispos.get_dispo(dispo_id)
     {:ok, _} = Dispos.delete_dispo(dispo)
-    Logger.notice("Dispo #{dispo_name}(#{dispo_id}) deleted. Shutting down associated DispoServer")
+    Logger.info("DispoServer #{inspect(self())} (#{dispo_name}:#{dispo_id}) deleted associated Dispo. Terminating")
     # Goodbye
     {:stop, :normal, state}
   end
@@ -256,7 +256,7 @@ defmodule Disposocial3.DispoServer do
   @impl true
   def terminate(:normal, %{id: dispo_id, name: dispo_name} = _state) do
     # The final stand
-    Logger.info("DispoServer #{inspect(self())} (#{dispo_name}:#{dispo_id}) died peacefully")
+    Logger.info("DispoServer #{inspect(self())} (#{dispo_name}:#{dispo_id}) terminated gracefully")
   end
 
   @impl true
