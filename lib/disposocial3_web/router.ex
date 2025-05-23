@@ -69,10 +69,10 @@ defmodule Disposocial3Web.Router do
   scope "/", Disposocial3Web do
     pipe_through [:browser]
 
-    live "/discover", DispoLive.Index, :index
 
     live_session :current_user,
       on_mount: [{Disposocial3Web.UserAuth, :mount_current_scope}] do
+      live "/discover", DispoLive.Index, :index
       live "/users/register", UserLive.Registration, :new
       live "/users/log-in", UserLive.Login, :new
       live "/users/log-in/:token", UserLive.Confirmation, :new
