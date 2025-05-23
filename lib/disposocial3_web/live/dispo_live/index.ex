@@ -36,7 +36,7 @@ defmodule Disposocial3Web.DispoLive.Index do
       </div>
       <div>
         <.form for={@radius_form}>
-          <.input label="Discover radius (miles)" type="select" phx-change="update_radius" name="discovery_radius" field={@radius_form[:discovery_radius]} options={[5, 10, 15, 25, "global"]}/>
+          <.input label="Discover radius (miles)" type="select" phx-change="update_radius" name="discovery_radius" field={@radius_form[:discovery_radius]} options={[1, 5, 10, 25, "global"]}/>
         </.form>
         <.button patch={~p"/dispos/new"} class="btn-success">
           Create a Dispo <.icon name="hero-plus" />
@@ -44,8 +44,8 @@ defmodule Disposocial3Web.DispoLive.Index do
       </div>
     </div>
     <section class="flex flex-col gap-4 sm:mt-2 lg:mt-6">
-      <div :if={@location} id="dispos-empty" class="only:block hidden">
-        No Dispos near you :(
+      <div :if={@location} id="dispos-empty" class="only:block hidden text-center">
+        <p>No Dispos near you ☹️</p>
         <br>
         <.button patch={~p"/dispos/new"} class="btn-success">
           Create a Dispo <.icon name="hero-plus" />

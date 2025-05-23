@@ -49,7 +49,7 @@ defmodule Disposocial3Web.Layouts do
   def container(assigns) do
     ~H"""
     <.nav_bar flash={@flash} current_scope={@current_scope} />
-    <main class="flex-1 max-w-4xl mx-auto flex flex-col gap-1 sm:px-6 lg:px-8">
+    <main class="flex-1 mx-auto flex flex-col gap-1 sm:px-6 lg:px-8">
       {render_slot(@inner_block)}
     </main>
     <.flash_group flash={@flash} />
