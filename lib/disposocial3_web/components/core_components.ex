@@ -87,23 +87,25 @@ defmodule Disposocial3Web.CoreComponents do
       <.button phx-click="go" variant="primary">Send!</.button>
       <.button navigate={~p"/"}>Home</.button>
   """
-  attr :rest, :global, include: ~w(href navigate patch method)
-  attr :variant, :string, values: ~w(primary)
+  attr :rest, :global, include: ~w(href navigate patch method disabled)
+  attr :class, :string, default: ""
+  attr :variant, :string, values: ~w(primary), default: "primary"
   slot :inner_block, required: true
 
   def button(%{rest: rest} = assigns) do
-    variants = %{"primary" => "btn-primary", nil => "btn-primary btn-soft"}
-    assigns = assign(assigns, :class, Map.fetch!(variants, assigns[:variant]))
+    # variants = %{"primary" => "btn-primary", nil => "btn-primary btn-soft"}
+    # assigns = assign(assigns, :class, Map.fetch!(variants, assigns[:variant]))
 
     if rest[:href] || rest[:navigate] || rest[:patch] do
       ~H"""
-      <.link class={["btn", @class]} {@rest}>
+
+      <.link class={"btn btn-#{@variant} " <> @class} {@rest}>
         {render_slot(@inner_block)}
       </.link>
       """
     else
       ~H"""
-      <button class={["btn", @class]} {@rest}>
+      <button class={"btn btn-#{@variant} " <> @class} {@rest}>
         {render_slot(@inner_block)}
       </button>
       """
@@ -229,7 +231,7 @@ defmodule Disposocial3Web.CoreComponents do
           id={@id}
           name={@name}
           class={[
-            @class || "w-full textarea",
+            @class || "w-full textarea textarea-ghost bg-base-200 resize-none",
             @errors != [] && (@error_class || "textarea-error")
           ]}
           {@rest}
@@ -284,7 +286,7 @@ defmodule Disposocial3Web.CoreComponents do
 
   def header(assigns) do
     ~H"""
-    <header class={[@actions != [] && "flex items-center justify-between gap-6", "pb-4", @class]}>
+    <header class={[@actions != [] && "flex items-center justify-between gap-6", "py-4", @class]}>
       <div>
         <h1 class="text-lg font-semibold leading-8">
           {render_slot(@inner_block)}

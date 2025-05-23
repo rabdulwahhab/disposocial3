@@ -1,15 +1,20 @@
 defmodule Disposocial3.Accounts.User do
   use Ecto.Schema
   import Ecto.Changeset
+  alias Disposocial3.Posts.Post
+  alias Disposocial3.Dispos.Dispo
 
   schema "users" do
     field :email, :string
+    field :username, :string
     field :password, :string, virtual: true, redact: true
     field :hashed_password, :string, redact: true
     field :confirmed_at, :utc_datetime
     field :authenticated_at, :utc_datetime, virtual: true
     field :latitude, :float, virtual: true
     field :longitude, :float, virtual: true
+    has_many :posts, Post
+    has_many :dispos, Dispo
 
     timestamps(type: :utc_datetime)
   end
@@ -91,6 +96,13 @@ defmodule Disposocial3.Accounts.User do
     |> maybe_hash_password(opts)
   end
 
+  defp validate_username(changeset, _opts) do
+    changeset
+    |> validate_required([:username])
+    |> validate_length(:username, min: 2, max: 72)
+    |> unique_constraint(:username)
+  end
+
   defp maybe_hash_password(changeset, opts) do
     hash_password? = Keyword.get(opts, :hash_password, true)
     password = get_change(changeset, :password)
@@ -130,5 +142,14 @@ defmodule Disposocial3.Accounts.User do
   def valid_password?(_, _) do
     Bcrypt.no_user_verify()
     false
+  end
+
+  def registration_changeset(user, attrs, opts \\ []) do
+    user
+    |> cast(attrs, [:email, :password, :username, :hashed_password])
+    |> validate_email(opts)
+    |> validate_username(opts)
+    |> validate_confirmation(:password, message: "does not match password")
+    |> validate_password(opts)
   end
 end

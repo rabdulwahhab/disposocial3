@@ -17,7 +17,7 @@ defmodule Disposocial3Web do
   those modules here.
   """
 
-  def static_paths, do: ~w(assets fonts images favicon.ico robots.txt)
+  def static_paths, do: ~w(assets fonts images favicon.ico robots.txt site.webmanifest)
 
   def router do
     quote do
@@ -84,7 +84,7 @@ defmodule Disposocial3Web do
 
       # Common modules used in templates
       alias Phoenix.LiveView.JS
-      alias Disposocial3Web.Layouts
+      alias Disposocial3Web.{Layouts, UI, Util}
 
       # Routes generation with the ~p sigil
       unquote(verified_routes())

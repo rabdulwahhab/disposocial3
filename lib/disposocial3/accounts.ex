@@ -175,6 +175,12 @@ defmodule Disposocial3.Accounts do
     end
   end
 
+  def present_user(id) do
+    q = from(u in User, where: u.id == ^id, select: [u.id, u.username])
+    [user_id, name] = Repo.one(q)
+    %User{id: user_id, username: name}
+  end
+
   ## Session
 
   @doc """

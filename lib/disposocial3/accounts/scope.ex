@@ -17,8 +17,9 @@ defmodule Disposocial3.Accounts.Scope do
   """
 
   alias Disposocial3.Accounts.User
+  alias Disposocial3.Dispos.Dispo
 
-  defstruct user: nil
+  defstruct user: nil, dispo: nil
 
   @doc """
   Creates a scope for the given user.
@@ -30,4 +31,9 @@ defmodule Disposocial3.Accounts.Scope do
   end
 
   def for_user(nil), do: nil
+
+  def for_dispo(current_scope, %Dispo{} = dispo) do
+    %__MODULE__{current_scope | dispo: dispo}
+  end
+
 end
