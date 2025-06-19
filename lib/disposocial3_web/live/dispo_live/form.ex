@@ -1,34 +1,31 @@
 defmodule Disposocial3Web.DispoLive.Form do
   use Disposocial3Web, :live_view
 
-  alias Disposocial3.Dispos
-  alias Disposocial3.Dispos.Dispo
+  alias Disposocial3.{Dispos, Dispos.Dispo, DispoServer}
 
   @impl true
   def render(assigns) do
     ~H"""
-    <Layouts.app flash={@flash} current_scope={@current_scope}>
+    <Layouts.container flash={@flash} current_scope={@current_scope}>
+      <div class="mx-auto max-w-sm">
       <.header>
         {@page_title}
         <:subtitle>Use this form to manage dispo records in your database.</:subtitle>
       </.header>
 
       <.form for={@form} id="dispo-form" phx-change="validate" phx-submit="save">
-        <.input field={@form[:death]} type="datetime-local" label="Death" />
-        <.input field={@form[:latitude]} type="number" label="Latitude" step="any" />
-        <.input field={@form[:longitude]} type="number" label="Longitude" step="any" />
-        <.input field={@form[:location]} type="text" label="Location" />
         <.input field={@form[:name]} type="text" label="Name" />
-        <.input field={@form[:is_public]} type="checkbox" label="Is public" />
-        <.input field={@form[:password]} type="text" label="Password" />
-        <.input field={@form[:hashed_password]} type="text" label="Hashed password" />
-        <.input field={@form[:description]} type="text" label="Description" />
+        <.input field={@form[:description]} type="textarea" label="Description" />
+        <.input field={@form[:duration]} type="select" label="Duration (hours)" options={[1, 2, 5, 8, 24, 48, 72]} />
+        <%!-- <.input field={@form[:is_public]} type="checkbox" label="Is public" />
+        <.input field={@form[:password]} type="text" label="Password" /> --%>
         <footer>
           <.button phx-disable-with="Saving..." variant="primary">Save Dispo</.button>
-          <.button navigate={return_path(@current_scope, @return_to, @dispo)}>Cancel</.button>
+          <.button navigate={return_path(@current_scope, @return_to, @dispo)} class="btn-ghost">Cancel</.button>
         </footer>
       </.form>
-    </Layouts.app>
+      </div>
+    </Layouts.container>
     """
   end
 
@@ -56,7 +53,7 @@ defmodule Disposocial3Web.DispoLive.Form do
     dispo = %Dispo{user_id: socket.assigns.current_scope.user.id}
 
     socket
-    |> assign(:page_title, "New Dispo")
+    |> assign(:page_title, "Create Dispo")
     |> assign(:dispo, dispo)
     |> assign(:form, to_form(Dispos.change_dispo(socket.assigns.current_scope, dispo)))
   end
@@ -87,17 +84,21 @@ defmodule Disposocial3Web.DispoLive.Form do
   end
 
   defp save_dispo(socket, :new, dispo_params) do
-    case Dispos.create_dispo(socket.assigns.current_scope, dispo_params) do
-      {:ok, dispo} ->
-        {:noreply,
-         socket
-         |> put_flash(:info, "Dispo created successfully")
-         |> push_navigate(
-           to: return_path(socket.assigns.current_scope, socket.assigns.return_to, dispo)
-         )}
-
+    user_location = %{"latitude" => socket.assigns.current_scope.user.latitude, "longitude" => socket.assigns.current_scope.user.longitude}
+    final_dispo_params = Map.merge(dispo_params, user_location)
+    with {:ok, dispo} <- Dispos.create_dispo(socket.assigns.current_scope, final_dispo_params),
+          :ok <- DispoServer.start(dispo.id) do
+      {:noreply,
+        socket
+        |> put_flash(:info, "Dispo created successfully")
+        |> push_navigate(
+          to: return_path(socket.assigns.current_scope, socket.assigns.return_to, dispo)
+        )}
+    else
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, assign(socket, form: to_form(changeset))}
+      :error ->
+        {:noreply, put_flash(socket, :error, "Failed starting the Dispo server")}
     end
   end
 

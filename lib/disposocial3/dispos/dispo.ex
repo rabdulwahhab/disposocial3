@@ -10,8 +10,9 @@ defmodule Disposocial3.Dispos.Dispo do
     field :longitude, :float
     field :location, :string
     field :name, :string
-    field :is_public, :boolean, default: false
+    field :is_public, :boolean, default: true
     field :password, :string, virtual: true, redact: true
+    field :duration, :integer, virtual: true
     field :hashed_password, :string, redact: true
     field :description, :string
     belongs_to :user, User
@@ -23,8 +24,8 @@ defmodule Disposocial3.Dispos.Dispo do
   @doc false
   def changeset(dispo, attrs, user_scope) do
     dispo
-    |> cast(attrs, [:death, :latitude, :longitude, :location, :name, :is_public, :password, :hashed_password, :description])
-    |> validate_required([:death, :latitude, :longitude, :location, :is_public, :description])
+    |> cast(attrs, [:death, :duration, :latitude, :longitude, :location, :name, :is_public, :password, :hashed_password, :description])
+    |> validate_required([:death, :latitude, :longitude, :is_public, :description])
     |> validate_length(:name, min: 4, max: 30)
     |> validate_length(:description, min: 4, max: 400)
     |> put_change(:user_id, user_scope.user.id)

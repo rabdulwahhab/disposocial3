@@ -11,8 +11,9 @@ defmodule Disposocial3.Accounts.User do
     field :hashed_password, :string, redact: true
     field :confirmed_at, :utc_datetime
     field :authenticated_at, :utc_datetime, virtual: true
-    field :latitude, :float, virtual: true
-    field :longitude, :float, virtual: true
+    field :latitude, :float
+    field :longitude, :float
+    field :location, :string
     has_many :posts, Post
     has_many :dispos, Dispo
 
@@ -151,5 +152,13 @@ defmodule Disposocial3.Accounts.User do
     |> validate_username(opts)
     |> validate_confirmation(:password, message: "does not match password")
     |> validate_password(opts)
+  end
+
+  def location_changeset(user, attrs, _opts \\ []) do
+    user
+    |> cast(attrs, [:latitude, :longitude])
+    |> validate_required([:latitude, :longitude])
+    |> validate_number(:latitude, greater_than_or_equal_to: -90, less_than_or_equal_to: 90, message: "must be between -90.0 and 90.0")
+    |> validate_number(:longitude, greater_than_or_equal_to: -180, less_than_or_equal_to: 180, message: "must be between -180.0 and 180.0")
   end
 end

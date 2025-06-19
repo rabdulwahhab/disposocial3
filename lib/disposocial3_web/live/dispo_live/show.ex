@@ -97,7 +97,7 @@ defmodule Disposocial3Web.DispoLive.Show do
         socket
         |> stream(:posts, recent_posts)
         |> stream(:connected_users, connected_users)
-        |> assign(:current_scope, Scope.for_dispo(socket.assigns.current_scope, dispo))
+        |> assign(:current_scope, Scope.update_dispo(socket.assigns.current_scope, dispo))
         |> assign(:dispo, dispo)
         |> assign(:page_title, dispo.name)
         |> assign(:announcements, [])
@@ -107,7 +107,7 @@ defmodule Disposocial3Web.DispoLive.Show do
         socket
         |> stream(:posts, [])
         |> stream(:connected_users, [])
-        |> assign(:current_scope, Scope.for_dispo(socket.assigns.current_scope, %Dispos.Dispo{}))
+        |> assign(:current_scope, Scope.update_dispo(socket.assigns.current_scope, %Dispos.Dispo{}))
         |> assign(:dispo, dispo)
         |> assign(:page_title, "Joining Dispo")
         |> assign(:announcements, [])

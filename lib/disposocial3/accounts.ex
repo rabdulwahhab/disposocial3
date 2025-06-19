@@ -175,6 +175,16 @@ defmodule Disposocial3.Accounts do
     end
   end
 
+  def change_user_location(user, attrs \\ %{}, opts \\ []) do
+    User.location_changeset(user, attrs, opts)
+  end
+
+  def update_user_location(user, attrs) do
+    user
+    |> change_user_location(attrs)
+    |> Repo.update()
+  end
+
   def present_user(id) do
     q = from(u in User, where: u.id == ^id, select: [u.id, u.username])
     [user_id, name] = Repo.one(q)

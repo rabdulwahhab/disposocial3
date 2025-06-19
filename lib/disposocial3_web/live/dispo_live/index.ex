@@ -1,7 +1,7 @@
 defmodule Disposocial3Web.DispoLive.Index do
   use Disposocial3Web, :live_view
 
-  alias Disposocial3.Dispos
+  alias Disposocial3.{Dispos, Accounts, Accounts.Scope}
   alias Disposocial3Web.Presence
   @default_radius 5  # Default Dispo discovery radius in miles
 
@@ -78,18 +78,6 @@ defmodule Disposocial3Web.DispoLive.Index do
   end
 
   @impl true
-  def handle_info({type, %Disposocial3.Dispos.Dispo{}}, socket)
-      when type in [:created, :updated, :deleted] do
-    {:noreply, stream(socket, :dispos, Dispos.list_dispos(socket.assigns.current_scope), reset: true)}
-  end
-
-
-  @impl true
-  def handle_info({Disposocial2Web.DispoLive.FormComponent, {:saved, dispo}}, socket) do
-    {:noreply, stream_insert(socket, :local_dispos, dispo)}
-  end
-
-  @impl true
   def handle_event("update_radius", %{"discovery_radius" => new_radius}, socket) do
     if socket.assigns.location do
       {latitude, longitude} = socket.assigns.location
@@ -117,12 +105,32 @@ defmodule Disposocial3Web.DispoLive.Index do
     local_dispos =
       Dispos.get_all_near(latitude, longitude, socket.assigns.radius_form.params["discovery_radius"])
       |> Enum.map(fn dispo -> Map.put(dispo, :active_users, get_num_active_dispo_users(dispo.id)) end)
-    # IO.inspect(local_dispos, label: "Local Dispos:")
+
     socket =
       socket
       |> assign(:location, {latitude, longitude})
       |> stream(:local_dispos, local_dispos)
-    {:noreply, socket}
+
+    if socket.assigns.current_scope do
+      with {:ok, user} <- Accounts.update_user_location(socket.assigns.current_scope.user, %{latitude: latitude, longitude: longitude}),
+            new_scope <- Scope.update_user(socket.assigns.current_scope, user) do
+        {:noreply, assign(socket, :current_scope, new_scope)}
+      end
+    else
+      {:noreply, socket}
+    end
+  end
+
+  @impl true
+  def handle_info({type, %Disposocial3.Dispos.Dispo{}}, socket)
+      when type in [:created, :updated, :deleted] do
+    {:noreply, stream(socket, :dispos, Dispos.list_dispos(socket.assigns.current_scope), reset: true)}
+  end
+
+
+  @impl true
+  def handle_info({Disposocial2Web.DispoLive.FormComponent, {:saved, dispo}}, socket) do
+    {:noreply, stream_insert(socket, :local_dispos, dispo)}
   end
 
   defp get_num_active_dispo_users(dispo_id) do
