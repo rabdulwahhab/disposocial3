@@ -89,7 +89,7 @@ defmodule Disposocial3Web.CoreComponents do
   """
   attr :rest, :global, include: ~w(href navigate patch method disabled)
   attr :class, :string, default: ""
-  attr :variant, :string, values: ~w(primary), default: "primary"
+  attr :variant, :string, values: ~w(primary error info success), default: "primary"
   slot :inner_block, required: true
 
   def button(%{rest: rest} = assigns) do

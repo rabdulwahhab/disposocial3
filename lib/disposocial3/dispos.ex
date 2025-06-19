@@ -45,6 +45,9 @@ defmodule Disposocial3.Dispos do
   def list_dispos(%Scope{} = scope) do
     Repo.all(from dispo in Dispo, where: dispo.user_id == ^scope.user.id)
   end
+  def list_dispos() do
+    Repo.all(Dispo)
+  end
 
   @doc """
   Gets a single dispo.

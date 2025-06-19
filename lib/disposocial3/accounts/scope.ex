@@ -32,7 +32,11 @@ defmodule Disposocial3.Accounts.Scope do
 
   def for_user(nil), do: nil
 
-  def for_dispo(current_scope, %Dispo{} = dispo) do
+  def update_user(current_scope, %User{} = new_user) do
+    %{current_scope | user: new_user}
+  end
+
+  def update_dispo(current_scope, %Dispo{} = dispo) do
     %__MODULE__{current_scope | dispo: dispo}
   end
 
