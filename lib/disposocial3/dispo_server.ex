@@ -3,7 +3,16 @@ defmodule Disposocial3.DispoServer do
 
   require Logger
   alias Disposocial3Web.Endpoint
-  alias Disposocial3.{DispoState, Dispos, Posts, DispoRegistry, DispoSupervisor, Comments, Reactions, Accounts.Scope}
+
+  alias Disposocial3.{
+    DispoState,
+    Dispos,
+    Posts,
+    DispoRegistry,
+    DispoSupervisor,
+    Comments,
+    Reactions
+  }
 
   defp registry(id) do
     {:via, Registry, {DispoRegistry, id}}
@@ -29,9 +38,11 @@ defmodule Disposocial3.DispoServer do
         {:ok, _} ->
           Logger.info("Started DispoServer for Dispo id = #{id}")
           :ok
+
         {:ok, _, _} ->
           Logger.info("Started DispoServer for Dispo id = #{id}")
           :ok
+
         other ->
           Logger.error("Failed starting DispoServer for Dispo id = #{id}: #{inspect(other)}")
           :error
@@ -46,17 +57,35 @@ defmodule Disposocial3.DispoServer do
   def peek(pid) when is_pid(pid), do: GenServer.call(pid, :peek)
   def get_dispo(id) when is_integer(id), do: GenServer.call(registry(id), :get_dispo)
   def get_dispo(pid) when is_pid(pid), do: GenServer.call(pid, :get_dispo)
-  def get_post(id, post_id) when is_integer(id), do: GenServer.call(registry(id), {:get_post, post_id})
+
+  def get_post(id, post_id) when is_integer(id),
+    do: GenServer.call(registry(id), {:get_post, post_id})
+
   def get_post(pid, post_id) when is_pid(pid), do: GenServer.call(pid, {:get_post, post_id})
-  def get_posts(id, post_ids) when is_integer(id), do: GenServer.call(registry(id), {:get_posts, post_ids})
+
+  def get_posts(id, post_ids) when is_integer(id),
+    do: GenServer.call(registry(id), {:get_posts, post_ids})
+
   def get_posts(pid, post_ids) when is_pid(pid), do: GenServer.call(pid, {:get_posts, post_ids})
-  def get_recent_posts(id) when is_integer(id), do: GenServer.call(registry(id), :get_recent_posts)
+
+  def get_recent_posts(id) when is_integer(id),
+    do: GenServer.call(registry(id), :get_recent_posts)
+
   def get_recent_posts(pid) when is_pid(pid), do: GenServer.call(pid, :get_recent_posts)
-  def get_popular_posts(id) when is_integer(id), do: GenServer.call(registry(id), :get_popular_posts)
+
+  def get_popular_posts(id) when is_integer(id),
+    do: GenServer.call(registry(id), :get_popular_posts)
+
   def get_popular_posts(pid) when is_pid(pid), do: GenServer.call(pid, :get_popular_posts)
-  def get_recent_comments(id) when is_integer(id), do: GenServer.call(registry(id), :get_recent_comments)
+
+  def get_recent_comments(id) when is_integer(id),
+    do: GenServer.call(registry(id), :get_recent_comments)
+
   def get_recent_comments(pid) when is_pid(pid), do: GenServer.call(pid, :get_recent_comments)
-  def get_recent_reactions(id) when is_integer(id), do: GenServer.call(registry(id), :get_recent_reactions)
+
+  def get_recent_reactions(id) when is_integer(id),
+    do: GenServer.call(registry(id), :get_recent_reactions)
+
   def get_recent_reactions(pid) when is_pid(pid), do: GenServer.call(pid, :get_recent_reactions)
   # NOTE maybe none of these need to be GenServer calls.
   # Could maybe get away with casting and then broadcast
@@ -64,11 +93,19 @@ defmodule Disposocial3.DispoServer do
   # dont have to wait for DispoServer to respond with
   # appropriate data which is downtime due to DB calls.
   # Try this out
-  def post_post(id, attrs) when is_integer(id), do: GenServer.call(registry(id), {:post_post, attrs})
+  def post_post(id, attrs) when is_integer(id),
+    do: GenServer.call(registry(id), {:post_post, attrs})
+
   def post_post(pid, attrs) when is_pid(pid), do: GenServer.call(pid, {:post_post, attrs})
-  def post_comment(id, attrs) when is_integer(id), do: GenServer.call(registry(id), {:post_comment, attrs})
+
+  def post_comment(id, attrs) when is_integer(id),
+    do: GenServer.call(registry(id), {:post_comment, attrs})
+
   def post_comment(pid, attrs) when is_pid(pid), do: GenServer.call(pid, {:post_comment, attrs})
-  def post_reaction(id, attrs) when is_integer(id), do: GenServer.call(registry(id), {:post_reaction, attrs})
+
+  def post_reaction(id, attrs) when is_integer(id),
+    do: GenServer.call(registry(id), {:post_reaction, attrs})
+
   def post_reaction(pid, attrs) when is_pid(pid), do: GenServer.call(pid, {:post_reaction, attrs})
 
   # def broadcast_feed(id) do
@@ -95,9 +132,12 @@ defmodule Disposocial3.DispoServer do
 
     if dispo = Dispos.get_dispo(id) do
       case init_death(dispo) do
-        :ok -> Logger.info("Initialized DispoServer #{inspect(self())} (#{dispo.name}:#{dispo.id})")
-              {:ok, dispo}
-        {:error, msg} -> {:stop, msg}
+        :ok ->
+          Logger.info("Initialized DispoServer #{inspect(self())} (#{dispo.name}:#{dispo.id})")
+          {:ok, dispo}
+
+        {:error, msg} ->
+          {:stop, msg}
       end
     else
       {:stop, "No Dispo with id '#{id}' found"}
@@ -107,6 +147,7 @@ defmodule Disposocial3.DispoServer do
   defp init_death(dispo) do
     # send self destruct message in on death date in the future
     seconds_left = DateTime.diff(dispo.death, DateTime.utc_now())
+
     if seconds_left <= 0 do
       {:error, "Cannot init Dispo with death date in the past: #{dispo.death}"}
     else
@@ -114,9 +155,11 @@ defmodule Disposocial3.DispoServer do
       Process.send_after(self(), :death, seconds_left * 1000)
       # Init next death reminder notification
       next_reminder = round(seconds_left / 2)
-      if next_reminder > 10 do  # stop exponential backoff reminders at 10 seconds left
+      # stop exponential backoff reminders at 10 seconds left
+      if next_reminder > 10 do
         Process.send_after(self(), :death_reminder, next_reminder * 1000)
       end
+
       :ok
     end
   end
@@ -152,6 +195,7 @@ defmodule Disposocial3.DispoServer do
   @impl true
   def handle_call(:get_recent_comments, _from, state) do
     post_ids = Posts.recent_post_ids(state.id)
+
     comms =
       for post_id <- post_ids, into: %{} do
         {post_id, Comments.get_post_comments(post_id)}
@@ -165,6 +209,7 @@ defmodule Disposocial3.DispoServer do
   @impl true
   def handle_call(:get_recent_reactions, _from, state) do
     post_ids = Posts.recent_post_ids(state.id)
+
     reactions =
       for post_id <- post_ids, into: %{} do
         {post_id, Posts.get_reaction_counts(post_id)}
@@ -193,7 +238,9 @@ defmodule Disposocial3.DispoServer do
       {:ok, comment} ->
         send(self(), {:count_popular, attrs.post_id})
         {:reply, {:ok, Comments.present(comment)}, state}
-      {:error, chgset} -> {:reply, {:error, chgset}, state}
+
+      {:error, chgset} ->
+        {:reply, {:error, chgset}, state}
     end
   end
 
@@ -203,8 +250,12 @@ defmodule Disposocial3.DispoServer do
       {:ok, :created} ->
         send(self(), {:count_popular, attrs.post_id})
         {:reply, :created, state}
-      {:ok, :updated} -> {:reply, :updated, state}
-      :noop -> {:reply, :noop, state}
+
+      {:ok, :updated} ->
+        {:reply, :updated, state}
+
+      :noop ->
+        {:reply, :noop, state}
     end
   end
 
@@ -214,7 +265,7 @@ defmodule Disposocial3.DispoServer do
   #   {:noreply, state}
   # end
 
-  @doc"""
+  @doc """
   Calculates what the most popular posts are for the dispo
   """
   @impl true
@@ -229,15 +280,26 @@ defmodule Disposocial3.DispoServer do
 
   # Exponential backoff reminders of termination date.
   @impl true
-  def handle_info(:death_reminder, %{death: death_datetime, id: dispo_id, name: dispo_name} = state) do
+  def handle_info(
+        :death_reminder,
+        %{death: death_datetime, id: dispo_id, name: dispo_name} = state
+      ) do
     seconds_left = DateTime.diff(death_datetime, DateTime.utc_now())
     # Init time remaining reminder
     next_reminder = round(seconds_left / 2)
-    if next_reminder > 10 do  # stop exponential backoff reminders at 10 seconds left
-      Logger.notice("DispoServer #{inspect(self())} (#{dispo_name}:#{dispo_id}) broadcasting reminder: #{seconds_left} secs left")
-      Endpoint.broadcast_from(self(), dispo_topic(dispo_id), "death_reminder", %{seconds_left: seconds_left})
+    # stop exponential backoff reminders at 10 seconds left
+    if next_reminder > 10 do
+      Logger.notice(
+        "DispoServer #{inspect(self())} (#{dispo_name}:#{dispo_id}) broadcasting reminder: #{seconds_left} secs left"
+      )
+
+      Endpoint.broadcast_from(self(), dispo_topic(dispo_id), "death_reminder", %{
+        seconds_left: seconds_left
+      })
+
       Process.send_after(self(), :death_reminder, next_reminder * 1000)
     end
+
     {:noreply, state}
   end
 
@@ -245,10 +307,15 @@ defmodule Disposocial3.DispoServer do
   def handle_info(:death, %{id: dispo_id, name: dispo_name} = state) do
     # self destruct
     Endpoint.broadcast_from(self(), dispo_topic(dispo_id), "angel_of_death", %{})
-    Process.sleep(2_000)  # minimal sleep to let all connected users disconnect
+    # minimal sleep to let all connected users disconnect
+    Process.sleep(2_000)
     dispo = Dispos.get_dispo(dispo_id)
     {:ok, _} = Dispos.delete_dispo(dispo)
-    Logger.info("DispoServer #{inspect(self())} (#{dispo_name}:#{dispo_id}) deleted associated Dispo. Terminating")
+
+    Logger.info(
+      "DispoServer #{inspect(self())} (#{dispo_name}:#{dispo_id}) deleted associated Dispo. Terminating"
+    )
+
     # Goodbye
     {:stop, :normal, state}
   end
@@ -256,12 +323,15 @@ defmodule Disposocial3.DispoServer do
   @impl true
   def terminate(:normal, %{id: dispo_id, name: dispo_name} = _state) do
     # The final stand
-    Logger.info("DispoServer #{inspect(self())} (#{dispo_name}:#{dispo_id}) terminated gracefully")
+    Logger.info(
+      "DispoServer #{inspect(self())} (#{dispo_name}:#{dispo_id}) terminated gracefully"
+    )
   end
 
   @impl true
   def terminate({reason, _}, %{id: dispo_id, name: dispo_name} = state) do
-    Logger.critical("DispoServer #{inspect(self())} (#{dispo_name}:#{dispo_id}) terminated abnormally (#{inspect(reason)}) with state --> #{inspect(state)}")
+    Logger.critical(
+      "DispoServer #{inspect(self())} (#{dispo_name}:#{dispo_id}) terminated abnormally (#{inspect(reason)}) with state --> #{inspect(state)}"
+    )
   end
-
 end
