@@ -1,8 +1,8 @@
-defmodule Disposocial3.DispoReaper do
+defmodule Disposocial3.Tasks.DispoReaper do
   use Task
   import Ecto.Query
   require Logger
-  alias Disposocial3.{Repo, Dispos, Dispos.Dispo, Accounts.User, Accounts.Scope}
+  alias Disposocial3.{Repo, Dispos, Dispos.Dispo}
 
   @cleanup_interval 24  # hours
 

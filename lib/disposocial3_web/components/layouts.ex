@@ -46,6 +46,7 @@ defmodule Disposocial3Web.Layouts do
     doc: "the current [scope](https://hexdocs.pm/phoenix/scopes.html)"
 
   slot :inner_block, required: true
+
   def container(assigns) do
     ~H"""
     <.nav_bar flash={@flash} current_scope={@current_scope} />
@@ -61,12 +62,13 @@ defmodule Disposocial3Web.Layouts do
   attr :current_scope, :map,
     default: nil,
     doc: "the current [scope](https://hexdocs.pm/phoenix/scopes.html)"
+
   def nav_bar(assigns) do
     ~H"""
     <div class="navbar bg-base-100 shadow-sm">
       <div class="flex-1">
         <a href="/" class="flex-1 flex w-fit items-center gap-2">
-          <img src={~p"/images/logo.svg"} width="36" />
+          <img src={~p"/images/logo.png"} width="36" class="rounded-full" />
           <span class="text-xs font-light">v{Application.spec(:disposocial3, :vsn)}</span>
         </a>
       </div>
@@ -76,26 +78,30 @@ defmodule Disposocial3Web.Layouts do
             <.link href={~p"/discover"} class="">Discover</.link>
           </li>
           <%= if @current_scope do %>
-          <li>
-            <details>
-              <summary>{@current_scope.user.username}</summary>
-              <ul class="bg-base-100 rounded-t-none p-2">
-                <li>
-                  <.link href={~p"/users/settings"} class="btn btn-ghost">Settings</.link>
-                </li>
-                <li>
-                  <.link href={~p"/users/log-out"} class="btn btn-error btn-soft" method="delete">Log out</.link>
-                </li>
-              </ul>
-            </details>
-          </li>
+            <li>
+              <details>
+                <summary>{@current_scope.user.username}</summary>
+                <ul class="bg-base-100 rounded-t-none p-2">
+                  <li>
+                    <.link href={~p"/users/settings"} class="btn btn-ghost">Settings</.link>
+                  </li>
+                  <li>
+                    <.link href={~p"/users/log-out"} class="btn btn-error btn-soft" method="delete">
+                      Log out
+                    </.link>
+                  </li>
+                </ul>
+              </details>
+            </li>
           <% else %>
-          <li>
-            <.link href={~p"/users/log-in"} class="">Log in</.link>
-          </li>
-          <li>
-            <.link href={~p"/users/register"} class="btn btn-primary btn-soft font-normal">Register <span aria-hidden="true">&rarr;</span></.link>
-          </li>
+            <li>
+              <.link href={~p"/users/log-in"} class="">Log in</.link>
+            </li>
+            <li>
+              <.link href={~p"/users/register"} class="btn btn-primary btn-soft font-normal">
+                Register <span aria-hidden="true">&rarr;</span>
+              </.link>
+            </li>
           <% end %>
           <li>
             <.theme_toggle />

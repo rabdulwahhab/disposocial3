@@ -8,6 +8,7 @@ defmodule Disposocial3.Dispos do
 
   alias Disposocial3.Dispos.Dispo
   alias Disposocial3.Accounts.Scope
+  alias Disposocial3.GlobalDispoMgr
 
   @radius_of_earth 3_959 # in miles (converted from 6_371 km)
 
@@ -271,6 +272,11 @@ defmodule Disposocial3.Dispos do
     query
     |> Repo.all()
     |> Enum.filter(in_radius)
+  end
+
+  def get_global_dispo do
+    {:ok, id} = GlobalDispoMgr.get_global_dispo_id()
+    get_dispo(id)
   end
 
   def get_popular_posts(dispo_id) do

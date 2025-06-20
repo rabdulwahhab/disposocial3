@@ -21,7 +21,9 @@ defmodule Disposocial3.Application do
       # Start Dispo DynamicSupervisor
       Disposocial3.DispoSupervisor,
       # Start DispoReaper
-      Disposocial3.DispoReaper,
+      Disposocial3.Tasks.DispoReaper,
+      # Start Global Dispo
+      Disposocial3.GlobalDispoMgr,
       # Start a worker by calling: Disposocial3.Worker.start_link(arg)
       # {Disposocial3.Worker, arg},
       # Start to serve requests, typically the last entry
