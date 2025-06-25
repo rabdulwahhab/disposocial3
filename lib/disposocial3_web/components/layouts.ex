@@ -47,9 +47,11 @@ defmodule Disposocial3Web.Layouts do
 
   slot :inner_block, required: true
 
+  attr :navbar?, :boolean, default: true, doc: "Whether to display the navbar or not"
+
   def container(assigns) do
     ~H"""
-    <.nav_bar flash={@flash} current_scope={@current_scope} />
+    <.nav_bar :if={@navbar?} flash={@flash} current_scope={@current_scope} />
     <main class="flex-1 flex flex-col gap-1 sm:px-6 lg:px-8">
       {render_slot(@inner_block)}
     </main>

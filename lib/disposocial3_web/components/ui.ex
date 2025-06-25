@@ -12,10 +12,12 @@ defmodule Disposocial3Web.UI do
 
   def hero(assigns) do
     ~H"""
-    <div class="hero bg-base-200 h-80 mt-30 w-full rounded-md">
-      <div class="hero-content text-center">
+    <div class="hero min-h-screen">
+      <div class="hero-content flex-col lg:flex-row-reverse">
+        <img src={~p"/images/logo.png"} class="max-w-sm rounded-full" />
         <div>
           <h1 class="text-5xl font-bold">{@title}</h1>
+          <span class="text-xs font-light">v{Application.spec(:disposocial3, :vsn)}</span>
           <p class="py-6">
             {@subtitle}
           </p>
@@ -31,9 +33,9 @@ defmodule Disposocial3Web.UI do
     <div id={@id} class="card w-full bg-base-200">
       <div class="card-body">
         <%= if @dispo.is_public do %>
-        <span class="badge badge-xs badge-info">Public</span>
+          <span class="badge badge-xs badge-info">Public</span>
         <% else %>
-        <span class="badge badge-xs badge-info">Private</span>
+          <span class="badge badge-xs badge-info">Private</span>
         <% end %>
         <span class="badge badge-xs badge-success">Online: {@dispo.active_users}</span>
         <div class="flex justify-between">
@@ -46,11 +48,19 @@ defmodule Disposocial3Web.UI do
             <span>{"Created: #{Util.display_relative_time_past(@dispo.inserted_at)}"}</span>
           </li>
           <li>
-            <span class="text-error">{"Expiration: #{Util.display_relative_time_future(@dispo.death)}"}</span>
+            <span class="text-error">
+              {"Expiration: #{Util.display_relative_time_future(@dispo.death)}"}
+            </span>
           </li>
         </ul>
         <div class="mt-6">
-          <.button :if={@dispo.is_public} navigate={~p"/dispos/#{@dispo.id}"} class="btn-primary btn-block">Join</.button>
+          <.button
+            :if={@dispo.is_public}
+            navigate={~p"/dispos/#{@dispo.id}"}
+            class="btn-primary btn-block"
+          >
+            Join
+          </.button>
         </div>
       </div>
     </div>
@@ -61,11 +71,23 @@ defmodule Disposocial3Web.UI do
   attr :posts, :list, required: true
   attr :current_scope, Scope, required: true
   attr :rest, :global
+
   def posts_container(assigns) do
     ~H"""
     <%!-- <div class="py-6 w-full h-full border border-success" {@rest}> --%>
-    <div id={@id} phx-update="stream" phx-hook="AutoScrollToBottom" class="flex flex-col-reverse py-6 overflow-y-auto w-full h-3/4" {@rest}>
-      <.post :for={{post_dom_id, post} <- @posts} id={post_dom_id} post={post} current_scope={@current_scope} />
+    <div
+      id={@id}
+      phx-update="stream"
+      phx-hook="AutoScrollToBottom"
+      class="flex flex-col-reverse py-6 overflow-y-auto w-full h-3/4"
+      {@rest}
+    >
+      <.post
+        :for={{post_dom_id, post} <- @posts}
+        id={post_dom_id}
+        post={post}
+        current_scope={@current_scope}
+      />
     </div>
     """
   end
@@ -73,9 +95,13 @@ defmodule Disposocial3Web.UI do
   attr :id, :string, required: true
   attr :post, Post, required: true
   attr :current_scope, Scope, required: true
+
   def post(assigns) do
     ~H"""
-    <div id={@id} class={"chat wrap-anywhere #{if @post.user_id == @current_scope.user.id, do: "chat-end", else: "chat-start"}"}>
+    <div
+      id={@id}
+      class={"chat wrap-anywhere #{if @post.user_id == @current_scope.user.id, do: "chat-end", else: "chat-start"}"}
+    >
       <div class="chat-header">
         {@post.user.username}
         <time class="text-xs opacity-50">{Util.display_post_time(@post.inserted_at)}</time>
@@ -88,6 +114,7 @@ defmodule Disposocial3Web.UI do
 
   slot :sidebar_content, required: true
   slot :inner_block, required: true
+
   def drawer(assigns) do
     ~H"""
     <div class="drawer lg:drawer-open h-full">
