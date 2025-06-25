@@ -8,12 +8,22 @@ defmodule Disposocial3Web.PostLive.Form do
     ~H"""
     <div id={@id} class="sticky bottom-0">
       <.form for={@form} id="post-form" phx-target={@myself} phx-change="validate" phx-submit="save">
-        <div class="flex flex-row justify-center gap-2">
+        <div class="flex flex-row justify-center gap-2 lg:gap-4">
           <div class="basis-sm">
-            <.input field={@form[:body]} type="textarea" placeholder="Your message here" phx-hook="EnterToSubmit" />
+            <.input
+              field={@form[:body]}
+              type="textarea"
+              placeholder="Your message here"
+              phx-hook="EnterToSubmit"
+            />
           </div>
-          <div>
-            <.button phx-disable-with="Saving..." variant="primary" disabled={not @form.source.valid?} class="btn-xl">
+          <div class="content-center">
+            <.button
+              phx-disable-with="..."
+              variant="primary"
+              disabled={not @form.source.valid?}
+              class="btn-xl btn-circle"
+            >
               <.icon name="hero-paper-airplane" class="size-5" />
             </.button>
           </div>
@@ -26,10 +36,10 @@ defmodule Disposocial3Web.PostLive.Form do
   @impl true
   def update(assigns, socket) do
     {:ok,
-      socket
-      |> assign(assigns)
-      |> assign(:live_action, :new)
-      |> then(fn socket_sofar -> reset_form(socket_sofar) end)}
+     socket
+     |> assign(assigns)
+     |> assign(:live_action, :new)
+     |> then(fn socket_sofar -> reset_form(socket_sofar) end)}
   end
 
   defp blank_post_changeset(current_scope) do
@@ -38,6 +48,7 @@ defmodule Disposocial3Web.PostLive.Form do
         user_id: current_scope.user.id,
         dispo_id: current_scope.dispo.id
       }
+
     Posts.change_post(current_scope, blank_post)
   end
 
@@ -47,7 +58,9 @@ defmodule Disposocial3Web.PostLive.Form do
 
   @impl true
   def handle_event("validate", %{"post" => post_params}, socket) do
-    changeset = Posts.change_post(socket.assigns.current_scope, socket.assigns.form.data, post_params)
+    changeset =
+      Posts.change_post(socket.assigns.current_scope, socket.assigns.form.data, post_params)
+
     {:noreply, assign(socket, form: to_form(changeset, action: :validate))}
   end
 
@@ -83,5 +96,4 @@ defmodule Disposocial3Web.PostLive.Form do
   # end
 
   defp notify_parent(msg), do: send(self(), {__MODULE__, msg})
-
 end

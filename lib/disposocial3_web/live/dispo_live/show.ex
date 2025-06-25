@@ -25,8 +25,16 @@ defmodule Disposocial3Web.DispoLive.Show do
           <:subtitle><span class="wrap-anywhere">{@dispo.description}</span></:subtitle>
         </.header>
         <!-- Posts container -->
-        <UI.posts_container id="posts-container" posts={@streams.posts} current_scope={@current_scope} />
-        <.live_component module={Disposocial3Web.PostLive.Form} id="new-post-live-comp" current_scope={@current_scope} />
+        <UI.posts_container
+          id="posts-container"
+          posts={@streams.posts}
+          current_scope={@current_scope}
+        />
+        <.live_component
+          module={Disposocial3Web.PostLive.Form}
+          id="new-post-live-comp"
+          current_scope={@current_scope}
+        />
         <!-- End page content -->
         <:sidebar_content>
           <!-- Sidebar content here -->
@@ -34,7 +42,11 @@ defmodule Disposocial3Web.DispoLive.Show do
             <.button navigate={~p"/discover"} variant="error" class="btn-error">
               <.icon name="hero-arrow-left" />Leave
             </.button>
-            <.button :if={@current_scope.user.id == @dispo.user_id} variant="primary" navigate={~p"/dispos/#{@dispo}/edit?return_to=show"}>
+            <.button
+              :if={@current_scope.user.id == @dispo.user_id}
+              variant="primary"
+              navigate={~p"/dispos/#{@dispo}/edit?return_to=show"}
+            >
               <.icon name="hero-pencil-square" /> Edit dispo
             </.button>
           </li>
@@ -57,13 +69,13 @@ defmodule Disposocial3Web.DispoLive.Show do
               </div>
               <div id="connected-users" phx-update="stream" class="collapse-content text-sm">
                 <%= for {connected_user_dom_id, user} <- @streams.connected_users do %>
-                <div id={connected_user_dom_id}>
-                  <span>
-                    <div aria-label="success" class="status status-success mx-3"></div>
-                    {user.username}
-                    <span :if={user.id == @current_scope.user.id}>(Me)</span>
-                  </span>
-                </div>
+                  <div id={connected_user_dom_id}>
+                    <span>
+                      <div aria-label="success" class="status status-success mx-3"></div>
+                      {user.username}
+                      <span :if={user.id == @current_scope.user.id}>(Me)</span>
+                    </span>
+                  </div>
                 <% end %>
               </div>
             </div>
@@ -78,8 +90,10 @@ defmodule Disposocial3Web.DispoLive.Show do
   def mount(%{"id" => id}, _session, socket) do
     dispo_id = String.to_integer(id)
     dispo = DispoServer.get_dispo(dispo_id)
+
     if connected?(socket) do
       Dispos.subscribe_dispos(socket.assigns.current_scope)
+
       Presence.track(
         self(),
         dispo_topic(dispo_id),
@@ -90,9 +104,11 @@ defmodule Disposocial3Web.DispoLive.Show do
           online_at: inspect(System.system_time(:second))
         }
       )
+
       Endpoint.subscribe(dispo_topic(dispo_id))
       recent_posts = DispoServer.get_recent_posts(dispo_id)
       connected_users = get_connected_dispo_users(dispo_id)
+
       socket =
         socket
         |> stream(:posts, recent_posts)
@@ -101,27 +117,38 @@ defmodule Disposocial3Web.DispoLive.Show do
         |> assign(:dispo, dispo)
         |> assign(:page_title, dispo.name)
         |> assign(:announcements, [])
+
       {:ok, socket}
     else
       socket =
         socket
         |> stream(:posts, [])
         |> stream(:connected_users, [])
-        |> assign(:current_scope, Scope.update_dispo(socket.assigns.current_scope, %Dispos.Dispo{}))
+        |> assign(
+          :current_scope,
+          Scope.update_dispo(socket.assigns.current_scope, %Dispos.Dispo{})
+        )
         |> assign(:dispo, dispo)
         |> assign(:page_title, "Joining Dispo")
         |> assign(:announcements, [])
+
       {:ok, socket}
     end
   end
 
   @impl true
   def handle_info({Disposocial3Web.PostLive.Form, {:new_post, post}}, socket) do
-    Endpoint.broadcast_from(self(), dispo_topic(socket.assigns.current_scope.dispo.id), "new_post", %{post: post})
+    Endpoint.broadcast_from(
+      self(),
+      dispo_topic(socket.assigns.current_scope.dispo.id),
+      "new_post",
+      %{post: post}
+    )
+
     {:noreply,
-      socket
-      |> stream_insert(:posts, post, at: 0)
-      |> put_flash(:info, "Posted!")}
+     socket
+     # |> put_flash(:info, "Posted!")
+     |> stream_insert(:posts, post, at: 0)}
   end
 
   @impl true
@@ -155,7 +182,8 @@ defmodule Disposocial3Web.DispoLive.Show do
   @impl true
   def handle_info(%{event: "user_joined", payload: %{user: username}}, socket) do
     # TODO put flash
-    {:noreply, assign(socket, :announcements, ["#{username} joined." | socket.assigns.announcements])}
+    {:noreply,
+     assign(socket, :announcements, ["#{username} joined." | socket.assigns.announcements])}
   end
 
   @impl true
@@ -168,9 +196,9 @@ defmodule Disposocial3Web.DispoLive.Show do
   @impl true
   def handle_info(%{event: "angel_of_death", payload: _payload}, socket) do
     {:noreply,
-      socket
-      |> put_flash(:error, "Dispo gone")
-      |> redirect(to: ~p"/discover")}
+     socket
+     |> put_flash(:error, "Dispo gone")
+     |> redirect(to: ~p"/discover")}
   end
 
   @impl true
@@ -179,9 +207,9 @@ defmodule Disposocial3Web.DispoLive.Show do
     # IO.inspect(joins, label: "JOINS")
     # IO.inspect(leaves, label: "LEAVES")
     {:noreply,
-      socket
-      |> process_joins(joins)
-      |> process_leaves(leaves)}
+     socket
+     |> process_joins(joins)
+     |> process_leaves(leaves)}
   end
 
   defp get_connected_dispo_users(dispo_id) do
@@ -191,18 +219,24 @@ defmodule Disposocial3Web.DispoLive.Show do
   end
 
   defp process_joins(socket, joins) when map_size(joins) == 0, do: socket
+
   defp process_joins(socket, joins) do
     joins
     |> Enum.map(fn {_user_id, data} -> data[:metas] |> List.first() end)
     # |> IO.inspect(label: "joined users")
-    |> Enum.reduce(socket, fn joined_user, socket_acc -> stream_insert(socket_acc, :connected_users, joined_user) end)
+    |> Enum.reduce(socket, fn joined_user, socket_acc ->
+      stream_insert(socket_acc, :connected_users, joined_user)
+    end)
   end
 
   defp process_leaves(socket, leaves) when map_size(leaves) == 0, do: socket
+
   defp process_leaves(socket, leaves) do
     leaves
     |> Enum.map(fn {_user_id, data} -> data[:metas] |> List.first() end)
     # |> IO.inspect(label: "left users")
-    |> Enum.reduce(socket, fn left_user, socket_acc -> stream_delete(socket_acc, :connected_users, left_user) end)
+    |> Enum.reduce(socket, fn left_user, socket_acc ->
+      stream_delete(socket_acc, :connected_users, left_user)
+    end)
   end
 end

@@ -56,7 +56,7 @@ defmodule Disposocial3Web.UserLive.Settings do
             label="Confirm new password"
             autocomplete="new-password"
           />
-          <.button variant="primary" phx-disable-with="Saving...">
+          <.button variant="primary" phx-disable-with="...">
             Save Password
           </.button>
         </.form>
