@@ -44,7 +44,12 @@ if config_env() == :prod do
       You can generate one by calling: mix phx.gen.secret
       """
 
-  host = System.get_env("PHX_HOST") || "example.com"
+  host =
+    System.get_env("PHX_HOST") ||
+      raise """
+        env var PHX_HOST is missing
+      """
+
   port = String.to_integer(System.get_env("PORT") || "4000")
 
   config :disposocial3, :dns_cluster_query, System.get_env("DNS_CLUSTER_QUERY")
@@ -99,15 +104,25 @@ if config_env() == :prod do
   # Also, you may need to configure the Swoosh API client of your choice if you
   # are not using SMTP. Here is an example of the configuration:
   #
-  #     config :disposocial3, Disposocial3.Mailer,
-  #       adapter: Swoosh.Adapters.Mailgun,
-  #       api_key: System.get_env("MAILGUN_API_KEY"),
-  #       domain: System.get_env("MAILGUN_DOMAIN")
+  config :disposocial3, Disposocial3.Mailer,
+    adapter: Swoosh.Adapters.AmazonSES,
+    region: "us-east-1",
+    access_key:
+      System.get_env("AWS_ACCESS_KEY") ||
+        raise("""
+        env var AWS_ACCESS_KEY is missing
+        """),
+    secret:
+      System.get_env("AWS_SECRET_ACCESS_KEY") ||
+        raise("""
+        env var AWS_SECRET_ACCESS_KEY is missing
+        """)
+
   #
   # For this example you need include a HTTP client required by Swoosh API client.
   # Swoosh supports Hackney, Req and Finch out of the box:
   #
-  #     config :swoosh, :api_client, Swoosh.ApiClient.Hackney
+  config :swoosh, :api_client, Swoosh.ApiClient.Req
   #
   # See https://hexdocs.pm/swoosh/Swoosh.html#module-installation for details.
 end

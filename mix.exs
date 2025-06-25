@@ -58,7 +58,8 @@ defmodule Disposocial3.MixProject do
       {:telemetry_poller, "~> 1.0"},
       {:jason, "~> 1.2"},
       {:dns_cluster, "~> 0.1.1"},
-      {:bandit, "~> 1.5"}
+      {:bandit, "~> 1.5"},
+      {:gen_smtp, "~> 1.0"}
     ]
   end
 
