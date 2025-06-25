@@ -82,7 +82,7 @@ defmodule Disposocial3Web.Layouts do
           <%= if @current_scope do %>
             <li>
               <details>
-                <summary>{@current_scope.user.username}</summary>
+                <summary>{@current_scope.user.email}</summary>
                 <ul class="bg-base-100 rounded-t-none p-2">
                   <li>
                     <.link href={~p"/users/settings"} class="btn btn-ghost">Settings</.link>
