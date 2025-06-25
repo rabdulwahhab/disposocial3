@@ -1,15 +1,18 @@
 defmodule Disposocial3.Accounts.UserNotifier do
   import Swoosh.Email
 
+  require Logger
   alias Disposocial3.Mailer
   alias Disposocial3.Accounts.User
 
   # Delivers the email using the application mailer.
   defp deliver(recipient, subject, body) do
+    Logger.info("Sending email (#{subject})")
+
     email =
       new()
       |> to(recipient)
-      |> from({"Disposocial3", "contact@example.com"})
+      |> from({"Disposocial", "noreply@disposocial.com"})
       |> subject(subject)
       |> text_body(body)
 
