@@ -56,7 +56,7 @@ defmodule Disposocial3Web.Router do
       live "/users/settings/confirm-email/:token", UserLive.Settings, :confirm_email
       live "/dispos/new", DispoLive.Form, :new
       live "/dispos/:id", DispoLive.Show, :show
-      live "/dispos/:id/edit", DispoLive.Form, :edit
+      # live "/dispos/:id/edit", DispoLive.Form, :edit
       # live "/posts", PostLive.Index, :index
       # live "/posts/new", PostLive.Form, :new
       # live "/posts/:id", PostLive.Show, :show
@@ -68,7 +68,6 @@ defmodule Disposocial3Web.Router do
 
   scope "/", Disposocial3Web do
     pipe_through [:browser]
-
 
     live_session :current_user,
       on_mount: [{Disposocial3Web.UserAuth, :mount_current_scope}] do

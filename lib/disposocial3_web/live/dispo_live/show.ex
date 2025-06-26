@@ -38,17 +38,17 @@ defmodule Disposocial3Web.DispoLive.Show do
         <!-- End page content -->
         <:sidebar_content>
           <!-- Sidebar content here -->
-          <li class="list-row">
-            <.button navigate={~p"/discover"} variant="error" class="btn-error">
+          <li class="list-row grid-cols-none">
+            <.button navigate={~p"/discover"} variant="error" class="btn-wide">
               <.icon name="hero-arrow-left" />Leave
             </.button>
-            <.button
+            <%!-- <.button
               :if={@current_scope.user.id == @dispo.user_id}
               variant="primary"
               navigate={~p"/dispos/#{@dispo}/edit?return_to=show"}
             >
               <.icon name="hero-pencil-square" /> Edit dispo
-            </.button>
+            </.button> --%>
           </li>
           <li class="list-row">
             <.icon name="hero-map-pin" />
