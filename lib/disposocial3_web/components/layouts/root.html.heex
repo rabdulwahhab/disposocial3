@@ -4,13 +4,24 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="csrf-token" content={get_csrf_token()} />
-    <link phx-track-static rel="icon" type="image/png" href="/images/favicon-96x96.png" sizes="96x96" />
+    <link
+      phx-track-static
+      rel="icon"
+      type="image/png"
+      href="/images/favicon-96x96.png"
+      sizes="96x96"
+    />
     <link phx-track-static rel="icon" type="image/svg+xml" href="/images/favicon.svg" />
     <link phx-track-static rel="shortcut icon" href="/favicon.ico" />
-    <link phx-track-static rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png" />
+    <link
+      phx-track-static
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="/images/apple-touch-icon.png"
+    />
     <meta name="apple-mobile-web-app-title" content="Disposocial" />
     <link rel="manifest" href="/site.webmanifest" />
-    <.live_title default="Disposocial" suffix=" · Disposocial">
+    <.live_title suffix=" · Disposocial">
       {assigns[:page_title]}
     </.live_title>
     <link phx-track-static rel="stylesheet" href={~p"/assets/css/app.css"} />

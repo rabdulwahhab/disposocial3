@@ -13,11 +13,11 @@ defmodule Disposocial3Web.UI do
   def hero(assigns) do
     ~H"""
     <div class="hero min-h-screen">
-      <div class="hero-content flex-col lg:flex-row-reverse">
-        <img src={~p"/images/logo.png"} class="max-w-sm rounded-full" />
+      <div class="flex flex-col items-center text-center">
+        <img src={~p"/images/logo.png"} class="w-50 rounded-full" />
         <div>
           <h1 class="text-5xl font-bold">{@title}</h1>
-          <span class="text-xs font-light">v{Application.spec(:disposocial3, :vsn)}</span>
+          <span class="text-xs font-light">beta</span>
           <p class="py-6">
             {@subtitle}
           </p>
@@ -32,35 +32,37 @@ defmodule Disposocial3Web.UI do
     ~H"""
     <div id={@id} class="card w-full bg-base-200">
       <div class="card-body">
-        <%= if @dispo.is_public do %>
-          <span class="badge badge-xs badge-info">Public</span>
-        <% else %>
-          <span class="badge badge-xs badge-info">Private</span>
-        <% end %>
-        <span class="badge badge-xs badge-success">Online: {@dispo.active_users}</span>
+        <div class="flex flex-wrap gap-2">
+          <%= if @dispo.is_public do %>
+            <span class="badge badge-xs badge-info">Public</span>
+          <% else %>
+            <span class="badge badge-xs badge-info">Private</span>
+          <% end %>
+          <span class="badge badge-xs badge-success">Online: {@dispo.active_users}</span>
+        </div>
         <div class="flex justify-between">
           <h2 class="text-3xl font-bold">{@dispo.name}</h2>
           <span class="text-xl">{"#{@dispo.latitude}, #{@dispo.longitude}"}</span>
         </div>
-        {@dispo.description}
-        <ul class="mt-6 flex flex-col gap-2 text-xs">
-          <li>
-            <span>{"Created: #{Util.display_relative_time_past(@dispo.inserted_at)}"}</span>
-          </li>
-          <li>
-            <span class="text-error">
-              {"Expiration: #{Util.display_relative_time_future(@dispo.death)}"}
-            </span>
-          </li>
-        </ul>
-        <div class="mt-6">
-          <.button
-            :if={@dispo.is_public}
-            navigate={~p"/dispos/#{@dispo.id}"}
-            class="btn-primary btn-block"
-          >
-            Join
-          </.button>
+        <div class="flex flex-wrap gap-2 font-light">
+          <span>{"Created: #{Util.display_relative_time_past(@dispo.inserted_at)}"}</span>
+          <span class="text-error">
+            {"Expiration: #{Util.display_relative_time_future(@dispo.death)}"}
+          </span>
+        </div>
+        <div class="flex flex-wrap justify-between items-end">
+          <div class="flex-2/3 font-semibold">
+            {@dispo.description}
+          </div>
+          <div>
+            <.button
+              :if={@dispo.is_public}
+              navigate={~p"/dispos/#{@dispo.id}"}
+              class="btn-primary btn-lg"
+            >
+              Join<span aria-hidden="true">&rarr;</span>
+            </.button>
+          </div>
         </div>
       </div>
     </div>

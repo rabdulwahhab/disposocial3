@@ -48,7 +48,7 @@ defmodule Disposocial3Web.DispoLive.Index do
             Create a Dispo <.icon name="hero-plus" />
           </.button>
         </div>
-        <section class="flex flex-col gap-4 sm:mt-2 lg:mt-6">
+        <section class="flex flex-col gap-4 sm:mt-2 lg:mt-6 p-2">
           <div :if={@location} id="dispos-empty" class="only:block hidden text-center">
             <p>No Dispos near you ☹️</p>
             <br />

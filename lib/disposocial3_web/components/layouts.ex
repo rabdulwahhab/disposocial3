@@ -68,14 +68,13 @@ defmodule Disposocial3Web.Layouts do
   def nav_bar(assigns) do
     ~H"""
     <div class="navbar bg-base-100 shadow-sm">
-      <div class="flex-1">
-        <a href="/" class="flex-1 flex w-fit items-center gap-2">
-          <img src={~p"/images/logo.png"} width="36" class="rounded-full" />
-          <span class="text-xs font-light">v{Application.spec(:disposocial3, :vsn)}</span>
+      <div class="w-full">
+        <a href="/">
+          <img src={~p"/images/logo.png"} width="80" class="rounded-full" />
         </a>
       </div>
       <div class="flex-none">
-        <ul class="menu menu-horizontal px-1 gap-1">
+        <ul class="menu menu-horizontal gap-1 md:gap-4 text-sm">
           <li>
             <.link href={~p"/discover"} class="">Discover</.link>
           </li>
@@ -100,8 +99,8 @@ defmodule Disposocial3Web.Layouts do
               <.link href={~p"/users/log-in"} class="">Log in</.link>
             </li>
             <li>
-              <.link href={~p"/users/register"} class="btn btn-primary btn-soft font-normal">
-                Register <span aria-hidden="true">&rarr;</span>
+              <.link href={~p"/users/register"} class="btn btn-primary font-normal">
+                Register
               </.link>
             </li>
           <% end %>
@@ -171,21 +170,21 @@ defmodule Disposocial3Web.Layouts do
         phx-click={JS.dispatch("phx:set-theme", detail: %{theme: "system"})}
         class="btn-sm flex p-1 cursor-pointer w-1/3"
       >
-        <.icon name="hero-computer-desktop-micro" class="size-4 opacity-75 hover:opacity-100" />
+        <.icon name="hero-computer-desktop-micro" class="size-3 opacity-75 hover:opacity-100" />
       </button>
 
       <button
         phx-click={JS.dispatch("phx:set-theme", detail: %{theme: "light"})}
         class="btn-sm flex p-1 cursor-pointer w-1/3"
       >
-        <.icon name="hero-sun-micro" class="size-4 opacity-75 hover:opacity-100" />
+        <.icon name="hero-sun-micro" class="size-3 opacity-75 hover:opacity-100" />
       </button>
 
       <button
         phx-click={JS.dispatch("phx:set-theme", detail: %{theme: "dark"})}
         class="btn-sm flex p-1 cursor-pointer w-1/3"
       >
-        <.icon name="hero-moon-micro" class="size-4 opacity-75 hover:opacity-100" />
+        <.icon name="hero-moon-micro" class="size-3 opacity-75 hover:opacity-100" />
       </button>
     </div>
     """

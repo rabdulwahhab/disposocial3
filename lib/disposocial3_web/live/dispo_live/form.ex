@@ -10,13 +10,14 @@ defmodule Disposocial3Web.DispoLive.Form do
       <div class="mx-auto max-w-sm">
         <.header>
           {@page_title}
-          <:subtitle>Use this form to manage dispo records in your database.</:subtitle>
+          <:subtitle>Enter Dispo details below</:subtitle>
         </.header>
 
         <.form for={@form} id="dispo-form" phx-change="validate" phx-submit="save">
           <.input field={@form[:name]} type="text" label="Name" />
           <.input field={@form[:description]} type="textarea" label="Description" />
           <.input
+            :if={@live_action == :new}
             field={@form[:duration]}
             type="select"
             label="Duration (hours)"
@@ -25,7 +26,7 @@ defmodule Disposocial3Web.DispoLive.Form do
           <%!-- <.input field={@form[:is_public]} type="checkbox" label="Is public" />
         <.input field={@form[:password]} type="text" label="Password" /> --%>
           <footer>
-            <.button phx-disable-with="..." variant="primary">Save Dispo</.button>
+            <.button phx-disable-with="..." variant="primary">Create</.button>
             <.button navigate={return_path(@current_scope, @return_to, @dispo)} class="btn-ghost">
               Cancel
             </.button>
