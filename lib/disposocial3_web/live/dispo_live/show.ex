@@ -57,8 +57,10 @@ defmodule Disposocial3Web.DispoLive.Show do
           </li>
           <li class="list-row">
             <.icon class="size-4 text-error" name="hero-exclamation-circle" />
-            <p class="text-error">Expiring:</p>
-            <p class="text-error">{Util.display_death_datetime(@dispo.death)}</p>
+            <p class="text-error grod-col-2">Expiring:</p>
+            <p class="text-error list-col-wrap">
+              {Util.display_death_datetime(@dispo.death, @current_scope.user.timezone)}
+            </p>
           </li>
           <li>
             <div class="collapse collapse-arrow collapse-open">
@@ -86,9 +88,7 @@ defmodule Disposocial3Web.DispoLive.Show do
     """
   end
 
-  @impl true
-  def mount(%{"id" => id}, _session, socket) do
-    dispo_id = String.to_integer(id)
+  defp setup_socket(dispo_id, socket) do
     dispo = DispoServer.get_dispo(dispo_id)
 
     if connected?(socket) do
@@ -109,30 +109,59 @@ defmodule Disposocial3Web.DispoLive.Show do
       recent_posts = DispoServer.get_recent_posts(dispo_id)
       connected_users = get_connected_dispo_users(dispo_id)
 
-      socket =
-        socket
-        |> stream(:posts, recent_posts)
-        |> stream(:connected_users, connected_users)
-        |> assign(:current_scope, Scope.update_dispo(socket.assigns.current_scope, dispo))
-        |> assign(:dispo, dispo)
-        |> assign(:page_title, dispo.name)
-        |> assign(:announcements, [])
-
-      {:ok, socket}
+      socket
+      |> stream(:posts, recent_posts)
+      |> stream(:connected_users, connected_users)
+      |> assign(:current_scope, Scope.update_dispo(socket.assigns.current_scope, dispo))
+      |> assign(:dispo, dispo)
+      |> assign(:page_title, dispo.name)
+      |> assign(:announcements, [])
     else
-      socket =
-        socket
-        |> stream(:posts, [])
-        |> stream(:connected_users, [])
-        |> assign(
-          :current_scope,
-          Scope.update_dispo(socket.assigns.current_scope, %Dispos.Dispo{})
-        )
-        |> assign(:dispo, dispo)
-        |> assign(:page_title, "Joining Dispo")
-        |> assign(:announcements, [])
+      socket
+      |> stream(:posts, [])
+      |> stream(:connected_users, [])
+      |> assign(
+        :current_scope,
+        Scope.update_dispo(socket.assigns.current_scope, %Dispos.Dispo{})
+      )
+      |> assign(:dispo, dispo)
+      |> assign(:page_title, "Joining Dispo")
+      |> assign(:announcements, [])
+    end
+  end
 
-      {:ok, socket}
+  defp authorized?(dispo_id, socket) do
+    with %Scope{user: user} <- socket.assigns.current_scope,
+         true <- not is_nil(user.latitude),
+         true <- not is_nil(user.longitude),
+         local_dispos =
+           Dispos.get_all_near(user.latitude, user.longitude, List.last(Dispos.search_radii())) do
+      authorized_dispo_ids =
+        [Dispos.get_global_dispo() | local_dispos]
+        |> Enum.map(& &1.id)
+
+      dispo_id in authorized_dispo_ids
+    end
+  end
+
+  @impl true
+  def mount(%{"id" => id}, _session, socket) do
+    case Integer.parse(id) do
+      {dispo_id, ""} ->
+        if authorized?(dispo_id, socket) do
+          {:ok, setup_socket(dispo_id, socket)}
+        else
+          {:ok,
+           socket
+           |> put_flash(:error, "Unauthorized")
+           |> push_navigate(to: ~p"/discover")}
+        end
+
+      _ ->
+        {:ok,
+         socket
+         |> put_flash(:error, "Invalid Dispo")
+         |> push_navigate(to: ~p"/discover")}
     end
   end
 

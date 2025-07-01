@@ -3,6 +3,13 @@ defmodule Disposocial3Web.Router do
 
   import Disposocial3Web.UserAuth
 
+  def put_default_page_title(conn, _opts) do
+    case conn.path_info do
+      [] -> conn
+      _ -> assign(conn, :page_title, String.capitalize(List.last(conn.path_info)))
+    end
+  end
+
   pipeline :browser do
     plug :accepts, ["html"]
     plug :fetch_session
@@ -11,6 +18,7 @@ defmodule Disposocial3Web.Router do
     plug :protect_from_forgery
     plug :put_secure_browser_headers
     plug :fetch_current_scope_for_user
+    plug :put_default_page_title
   end
 
   pipeline :api do

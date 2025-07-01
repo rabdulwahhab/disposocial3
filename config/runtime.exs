@@ -20,6 +20,14 @@ if System.get_env("PHX_SERVER") do
   config :disposocial3, Disposocial3Web.Endpoint, server: true
 end
 
+geoapify_api_key =
+  System.get_env("GEOAPIFY_API_KEY") ||
+    raise """
+    environment variable GEOAPIFY_API_KEY is missing.
+    """
+
+config :disposocial3, Disposocial3.Geoapify, api_key: geoapify_api_key
+
 if config_env() == :prod do
   database_path =
     System.get_env("DATABASE_PATH") ||
@@ -51,6 +59,14 @@ if config_env() == :prod do
       """
 
   port = String.to_integer(System.get_env("PORT") || "4000")
+
+  mailersend_api_key =
+    System.get_env("MAILERSEND_API_KEY") ||
+      raise """
+      env var MAILERSEND_API_KEY not defined
+      """
+
+  config :disposocial3, Disposocial3.Mailersend, api_key: mailersend_api_key
 
   config :disposocial3, :dns_cluster_query, System.get_env("DNS_CLUSTER_QUERY")
 
@@ -104,19 +120,19 @@ if config_env() == :prod do
   # Also, you may need to configure the Swoosh API client of your choice if you
   # are not using SMTP. Here is an example of the configuration:
   #
-  config :disposocial3, Disposocial3.Mailer,
-    adapter: Swoosh.Adapters.AmazonSES,
-    region: "us-east-1",
-    access_key:
-      System.get_env("AWS_ACCESS_KEY") ||
-        raise("""
-        env var AWS_ACCESS_KEY is missing
-        """),
-    secret:
-      System.get_env("AWS_SECRET_ACCESS_KEY") ||
-        raise("""
-        env var AWS_SECRET_ACCESS_KEY is missing
-        """)
+  # config :disposocial3, Disposocial3.Mailer,
+  #   adapter: Swoosh.Adapters.AmazonSES,
+  #   region: "us-east-1",
+  #   access_key:
+  #     System.get_env("AWS_ACCESS_KEY") ||
+  #       raise("""
+  #       env var AWS_ACCESS_KEY is missing
+  #       """),
+  #   secret:
+  #     System.get_env("AWS_SECRET_ACCESS_KEY") ||
+  #       raise("""
+  #       env var AWS_SECRET_ACCESS_KEY is missing
+  #       """)
 
   #
   # For this example you need include a HTTP client required by Swoosh API client.

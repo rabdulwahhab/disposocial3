@@ -3,10 +3,14 @@ defmodule Disposocial3.Accounts do
   The Accounts context.
   """
 
+  # the maximum amount of Dispos a user can create at once
+  @max_allowed_dispos 2
+
   import Ecto.Query, warn: false
   alias Disposocial3.Repo
 
   alias Disposocial3.Accounts.{User, UserToken, UserNotifier}
+  alias Disposocial3.Dispos.Dispo
 
   ## Database getters
 
@@ -176,7 +180,7 @@ defmodule Disposocial3.Accounts do
   end
 
   def change_user_location(user, attrs \\ %{}, opts \\ []) do
-    User.location_changeset(user, attrs, opts)
+    User.coordinates_changeset(user, attrs, opts)
   end
 
   def update_user_location(user, attrs) do
@@ -185,10 +189,29 @@ defmodule Disposocial3.Accounts do
     |> Repo.update()
   end
 
+  def change_geo_data(user, attrs \\ %{}, opts \\ []) do
+    User.geoapify_changeset(user, attrs, opts)
+  end
+
+  def update_user_geo_data(user, attrs) do
+    user
+    |> change_geo_data(attrs)
+    |> Repo.update()
+  end
+
   def present_user(id) do
     q = from(u in User, where: u.id == ^id, select: [u.id, u.username])
     [user_id, name] = Repo.one(q)
     %User{id: user_id, username: name}
+  end
+
+  def get_num_user_dispos(id) do
+    from(d in Dispo, where: d.user_id == ^id)
+    |> Repo.aggregate(:count)
+  end
+
+  def max_dispos_created?(id) do
+    get_num_user_dispos(id) >= @max_allowed_dispos
   end
 
   ## Session

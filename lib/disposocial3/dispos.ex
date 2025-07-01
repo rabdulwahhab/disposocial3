@@ -7,10 +7,14 @@ defmodule Disposocial3.Dispos do
   alias Disposocial3.Repo
 
   alias Disposocial3.Dispos.Dispo
-  alias Disposocial3.Accounts.Scope
+  alias Disposocial3.Accounts
+  alias Disposocial3.Accounts.{Scope, User}
   alias Disposocial3.GlobalDispoMgr
 
-  @radius_of_earth 3_959 # in miles (converted from 6_371 km)
+  # in miles (converted from 6_371 km)
+  @radius_of_earth 3_959
+
+  def search_radii, do: [1, 5, 10, 25]
 
   @doc """
   Subscribes to scoped notifications about any dispo changes.
@@ -46,6 +50,7 @@ defmodule Disposocial3.Dispos do
   def list_dispos(%Scope{} = scope) do
     Repo.all(from dispo in Dispo, where: dispo.user_id == ^scope.user.id)
   end
+
   def list_dispos() do
     Repo.all(Dispo)
   end
@@ -67,10 +72,17 @@ defmodule Disposocial3.Dispos do
   def get_dispo!(%Scope{} = scope, id) do
     Repo.get_by!(Dispo, id: id, user_id: scope.user.id)
   end
+
   def get_dispo(%Scope{} = scope, id), do: Repo.get_by(Dispo, id: id, user_id: scope.user.id)
+
   def get_dispo(id) do
     q = from(d in Dispo, where: d.id == ^id, preload: [:user])
     Repo.one(q)
+  end
+
+  def get_dispos_by_user(user_id) do
+    from(d in Dispo, where: d.user_id == ^user_id)
+    |> Repo.all()
   end
 
   def get_death_by_id(id) do
@@ -93,6 +105,7 @@ defmodule Disposocial3.Dispos do
   def create_dispo(%Scope{} = scope, %{"password" => password} = attrs) do
     raise "TODO"
   end
+
   def create_dispo(%Scope{} = scope, %{"duration" => duration} = attrs) do
     death_date =
       DateTime.utc_now()
@@ -104,15 +117,22 @@ defmodule Disposocial3.Dispos do
 
     create_dispo(scope, new_attrs)
   end
+
   def create_dispo(%Scope{} = scope, attrs) do
     # Geoapify.get_location_by_coords(attrs["latitude"], attrs["longitude"])
     # Map.put(attrs, :location, geodata)
-    with {:ok, dispo = %Dispo{}} <-
+    %User{} = scope.user
+
+    with false <- Accounts.max_dispos_created?(scope.user.id),
+         {:ok, dispo = %Dispo{}} <-
            %Dispo{}
            |> Dispo.changeset(attrs, scope)
            |> Repo.insert() do
       broadcast(scope, {:created, dispo})
       {:ok, dispo}
+    else
+      true -> {:error, :max_user_dispos}
+      any -> any
     end
   end
 
@@ -218,7 +238,11 @@ defmodule Disposocial3.Dispos do
     phi_2 = rad(lat2)
     delta_phi = rad(lat2 - lat1)
     delta_lam = rad(lng2 - lng1)
-    a = :math.pow(:math.sin(delta_phi / 2), 2) + :math.cos(phi_1) * :math.cos(phi_2) * :math.pow(:math.sin(delta_lam / 2), 2)
+
+    a =
+      :math.pow(:math.sin(delta_phi / 2), 2) +
+        :math.cos(phi_1) * :math.cos(phi_2) * :math.pow(:math.sin(delta_lam / 2), 2)
+
     c = 2 * :math.atan2(:math.sqrt(a), :math.sqrt(1 - a))
     @radius_of_earth * c
   end
@@ -227,7 +251,7 @@ defmodule Disposocial3.Dispos do
     haversine_dist({lat1, lng1}, {lat2, lng2}) / 5_280
   end
 
-  @doc"""
+  @doc """
   Gets the Dispos with coordinates within a radius of @dispo_radius.
   Uses Haversine distance calculation formula.
 
@@ -258,16 +282,27 @@ defmodule Disposocial3.Dispos do
   """
   def get_all_near(qlat, qlng, radius) do
     # TODO lat and lng checking. fix this later
-    query = cond do
-      qlat > 0.0 && qlng > 0.0 -> from(d in Dispo, where: d.latitude > 0.0 and d.longitude > 0.0)
-      qlat > 0.0 && qlng < 0.0 -> from(d in Dispo, where: d.latitude > 0.0 and d.longitude < 0.0)
-      qlat < 0.0 && qlng > 0.0 -> from(d in Dispo, where: d.latitude < 0.0 and d.longitude > 0.0)
-      qlat < 0.0 && qlng < 0.0 -> from(d in Dispo, where: d.latitude < 0.0 and d.longitude < 0.0)
-      true -> nil
-    end
+    query =
+      cond do
+        qlat > 0.0 && qlng > 0.0 ->
+          from(d in Dispo, where: d.latitude > 0.0 and d.longitude > 0.0)
 
-    in_radius = fn(dispo) ->
-      haversine_dist_mi({qlat, qlng}, {dispo.latitude, dispo.longitude}) <= radius end
+        qlat > 0.0 && qlng < 0.0 ->
+          from(d in Dispo, where: d.latitude > 0.0 and d.longitude < 0.0)
+
+        qlat < 0.0 && qlng > 0.0 ->
+          from(d in Dispo, where: d.latitude < 0.0 and d.longitude > 0.0)
+
+        qlat < 0.0 && qlng < 0.0 ->
+          from(d in Dispo, where: d.latitude < 0.0 and d.longitude < 0.0)
+
+        true ->
+          nil
+      end
+
+    in_radius = fn dispo ->
+      haversine_dist_mi({qlat, qlng}, {dispo.latitude, dispo.longitude}) <= radius
+    end
 
     query
     |> Repo.all()
@@ -293,16 +328,15 @@ defmodule Disposocial3.Dispos do
   def present(dispo) do
     dispo
     |> Map.take([
-        :id,
-        :name,
-        :location,
-        :latitude,
-        :longitude,
-        :is_public,
-        :inserted_at,
-        :description,
-        :death
-        ])
+      :id,
+      :name,
+      :location,
+      :latitude,
+      :longitude,
+      :is_public,
+      :inserted_at,
+      :description,
+      :death
+    ])
   end
-
 end

@@ -14,6 +14,7 @@ defmodule Disposocial3.Accounts.User do
     field :latitude, :float
     field :longitude, :float
     field :location, :string
+    field :timezone, :string
     has_many :posts, Post
     has_many :dispos, Dispo
 
@@ -154,11 +155,25 @@ defmodule Disposocial3.Accounts.User do
     |> validate_password(opts)
   end
 
-  def location_changeset(user, attrs, _opts \\ []) do
+  def coordinates_changeset(user, attrs, _opts \\ []) do
     user
     |> cast(attrs, [:latitude, :longitude])
     |> validate_required([:latitude, :longitude])
-    |> validate_number(:latitude, greater_than_or_equal_to: -90, less_than_or_equal_to: 90, message: "must be between -90.0 and 90.0")
-    |> validate_number(:longitude, greater_than_or_equal_to: -180, less_than_or_equal_to: 180, message: "must be between -180.0 and 180.0")
+    |> validate_number(:latitude,
+      greater_than_or_equal_to: -90,
+      less_than_or_equal_to: 90,
+      message: "must be between -90.0 and 90.0"
+    )
+    |> validate_number(:longitude,
+      greater_than_or_equal_to: -180,
+      less_than_or_equal_to: 180,
+      message: "must be between -180.0 and 180.0"
+    )
+  end
+
+  def geoapify_changeset(user, attrs, _opts \\ []) do
+    user
+    |> cast(attrs, [:location, :timezone])
+    |> validate_required([:location, :timezone])
   end
 end
