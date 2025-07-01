@@ -38,5 +38,5 @@ npm-debug.log
 # Database files
 *.db
 *.db-*
-
+rel/
 .env
