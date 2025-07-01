@@ -3,6 +3,7 @@ defmodule Disposocial3.Accounts.UserNotifier do
 
   require Logger
   alias Disposocial3.Mailer
+  alias Disposocial3.Mailersend
   alias Disposocial3.Accounts.User
 
   # Delivers the email using the application mailer.
@@ -16,8 +17,14 @@ defmodule Disposocial3.Accounts.UserNotifier do
       |> subject(subject)
       |> text_body(body)
 
-    with {:ok, _metadata} <- Mailer.deliver(email) do
-      {:ok, email}
+    if Mix.env() == :dev do
+      with {:ok, _metadata} <- Mailer.deliver(email) do
+        {:ok, email}
+      end
+    else
+      with {:ok, _metadata} <- Mailersend.deliver(email) do
+        {:ok, email}
+      end
     end
   end
 
@@ -27,17 +34,16 @@ defmodule Disposocial3.Accounts.UserNotifier do
   def deliver_update_email_instructions(user, url) do
     deliver(user.email, "Update email instructions", """
 
-    ==============================
+    Hi,
 
-    Hi #{user.email},
-
-    You can change your email by visiting the URL below:
+    You can update your email address by visiting the URL below:
 
     #{url}
 
-    If you didn't request this change, please ignore this.
+    If you didn't request this change, you can safely ignore this message.
 
-    ==============================
+    Thanks,
+    The Disposocial Team
     """)
   end
 
@@ -54,34 +60,32 @@ defmodule Disposocial3.Accounts.UserNotifier do
   defp deliver_magic_link_instructions(user, url) do
     deliver(user.email, "Log in instructions", """
 
-    ==============================
+    Hi,
 
-    Hi #{user.email},
-
-    You can log into your account by visiting the URL below:
+    You can log into your Disposocial account by visiting the URL below:
 
     #{url}
 
-    If you didn't request this email, please ignore this.
+    If you didn't request this email, you can safely ignore this message.
 
-    ==============================
+    Thanks,
+    The Disposocial Team
     """)
   end
 
   defp deliver_confirmation_instructions(user, url) do
     deliver(user.email, "Confirmation instructions", """
 
-    ==============================
+    Hi,
 
-    Hi #{user.email},
-
-    You can confirm your account by visiting the URL below:
+    You can confirm your Disposocial account by visiting the link below:
 
     #{url}
 
-    If you didn't create an account with us, please ignore this.
+    If you didn't create an account with us, you can safely ignore this message.
 
-    ==============================
+    Thanks,
+    The Disposocial Team
     """)
   end
 end

@@ -25,7 +25,7 @@ defmodule Disposocial3Web.DispoLive.Index do
                   <%= if @location do %>
                     <h6>{"#{elem(@location, 0)}, #{elem(@location, 1)}"}</h6>
                   <% else %>
-                    <h6>---</h6>
+                    <h6><span class="loading loading-dots"></span></h6>
                   <% end %>
                 </div>
               </div>
@@ -41,7 +41,7 @@ defmodule Disposocial3Web.DispoLive.Index do
               phx-change="update_radius"
               name="discovery_radius"
               field={@radius_form[:discovery_radius]}
-              options={[1, 5, 10, 25]}
+              options={Dispos.search_radii()}
             />
           </.form>
           <.button patch={~p"/dispos/new"} class="btn-success btn-lg">

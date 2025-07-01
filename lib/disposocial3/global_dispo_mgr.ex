@@ -6,17 +6,20 @@ defmodule Disposocial3.GlobalDispoMgr do
 
   use GenServer
   require Logger
-  alias Disposocial3.{Dispos, DispoServer, Accounts.User, Accounts.Scope, Repo}
+  alias Disposocial3.{Dispos, DispoServer, Accounts, Accounts.User, Accounts.Scope, Repo}
 
+  @global_dispo_user_email "global@disposocial.com"
   @global_dispo_user_params %User{
-    username: "Global Dispo",
-    email: "global@global.com"
+    username: "Disposocial",
+    email: @global_dispo_user_email
   }
-  @global_dispo_duration 24  # hours
+  # hours
+  @global_dispo_duration 24
   @global_dispo_params %{
     "duration" => to_string(@global_dispo_duration),
     "name" => "Global Dispo",
-    "description" => "This Dispo is open to all users, no matter where in the world you are located. Welcome to Disposocial!",
+    "description" =>
+      "This Dispo is open to all users, no matter where in the world you are located. Welcome to Disposocial!",
     "location" => "All around the world",
     "latitude" => 0.0,
     "longitude" => 0.0
@@ -30,10 +33,13 @@ defmodule Disposocial3.GlobalDispoMgr do
   def init(_) do
     Logger.info("GlobalDispoMgr #{inspect(self())}: starting")
     # Create user (if not already) and scope
-    scope =
-      with {:ok, user} <- Repo.insert(@global_dispo_user_params, on_conflict: :nothing) do
-        Scope.for_user(user)
+    global_user =
+      with nil <- Accounts.get_user_by_email(@global_dispo_user_email),
+           {:ok, user} <- Repo.insert(@global_dispo_user_params) do
+        user
       end
+
+    scope = Scope.for_user(global_user)
 
     send(self(), {:create_global_dispo, scope})
     {:ok, %{}}
@@ -42,15 +48,24 @@ defmodule Disposocial3.GlobalDispoMgr do
   @impl true
   def handle_info({:create_global_dispo, scope}, _) do
     # Create global dispo
-    Logger.info("GlobalDispoMgr #{inspect(self())}: creating global Dispo for (#{@global_dispo_duration} hours)")
+    Logger.info(
+      "GlobalDispoMgr #{inspect(self())}: creating global Dispo for (#{@global_dispo_duration} hours)"
+    )
+
     dispo =
       with {:ok, dispo} <- Dispos.create_dispo(scope, @global_dispo_params),
-            :ok <- DispoServer.start(dispo.id) do
+           :ok <- DispoServer.start(dispo.id) do
         Logger.info("GlobalDispoMgr #{inspect(self())}: global Dispo started")
         dispo
       end
 
-    Process.send_after(self(), {:create_global_dispo, scope}, :timer.hours(@global_dispo_duration) + :timer.minutes(1))  # add small buffer to allow natural Dispo death before spinning up another global dispo
+    # add small buffer to allow natural Dispo death before spinning up another global dispo
+    Process.send_after(
+      self(),
+      {:create_global_dispo, scope},
+      :timer.hours(@global_dispo_duration) + :timer.minutes(1)
+    )
+
     {:noreply, %{scope: scope, global_dispo: dispo}}
   end
 
@@ -62,5 +77,4 @@ defmodule Disposocial3.GlobalDispoMgr do
   def handle_call(:get_global_dispo_id, _from, %{global_dispo: dispo} = state) do
     {:reply, {:ok, dispo.id}, state}
   end
-
 end

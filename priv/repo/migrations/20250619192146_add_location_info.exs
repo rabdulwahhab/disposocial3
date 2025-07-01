@@ -4,6 +4,7 @@ defmodule Disposocial3.Repo.Migrations.AddLocationInfo do
   def change do
     alter table(:users) do
       add :location, :string
+      add :timezone, :string
       add :latitude, :float
       add :longitude, :float
     end

@@ -99,7 +99,10 @@ defmodule Disposocial3Web.UserLive.Login do
 
     form = to_form(%{"email" => email}, as: "user")
 
-    {:ok, assign(socket, form: form, trigger_submit: false)}
+    {:ok,
+     socket
+     |> assign(:page_title, "Log-in")
+     |> assign(form: form, trigger_submit: false)}
   end
 
   def handle_event("submit_password", _params, socket) do

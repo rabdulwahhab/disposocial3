@@ -113,6 +113,9 @@ defmodule Disposocial3Web.DispoLive.Form do
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, assign(socket, form: to_form(changeset))}
 
+      {:error, :max_user_dispos} ->
+        {:noreply, put_flash(socket, :error, "Max Dispos created")}
+
       :error ->
         {:noreply, put_flash(socket, :error, "Failed starting the Dispo server")}
     end
