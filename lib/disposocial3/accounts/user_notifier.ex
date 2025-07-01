@@ -17,14 +17,13 @@ defmodule Disposocial3.Accounts.UserNotifier do
       |> subject(subject)
       |> text_body(body)
 
-    if Mix.env() == :dev do
-      with {:ok, _metadata} <- Mailer.deliver(email) do
-        {:ok, email}
-      end
-    else
-      with {:ok, _metadata} <- Mailersend.deliver(email) do
-        {:ok, email}
-      end
+    # if Mix.env() == :dev do
+    #   with {:ok, _metadata} <- Mailer.deliver(email) do
+    #     {:ok, email}
+    #   end
+    # else
+    with {:ok, _metadata} <- Mailersend.deliver(email) do
+      {:ok, email}
     end
   end
 
