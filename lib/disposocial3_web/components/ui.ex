@@ -106,7 +106,9 @@ defmodule Disposocial3Web.UI do
     >
       <div class="chat-header">
         {@post.user.username}
-        <time class="text-xs opacity-50">{Util.display_post_time(@post.inserted_at)}</time>
+        <time class="text-xs opacity-50">
+          {Util.display_post_time(@post.inserted_at, @current_scope.user.timezone)}
+        </time>
       </div>
       <div class="chat-bubble">{@post.body}</div>
       <%!-- <div class="chat-footer opacity-50">Seen</div> --%>

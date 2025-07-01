@@ -41,8 +41,27 @@ defmodule Disposocial3.GlobalDispoMgr do
 
     scope = Scope.for_user(global_user)
 
-    send(self(), {:create_global_dispo, scope})
-    {:ok, %{}}
+    if Accounts.get_num_user_dispos(global_user.id) > 0 do
+      # Continue the Dispo from the DB
+      [global_dispo] = Dispos.get_dispos_by_user(global_user.id)
+
+      if DispoServer.start(global_dispo.id) == :ok do
+        Logger.info("GlobalDispoMgr #{inspect(self())}: global Dispo resumed")
+      end
+
+      diff_seconds = DateTime.diff(global_dispo.death, DateTime.utc_now())
+      # add small buffer to allow natural Dispo death before spinning up another global dispo
+      Process.send_after(
+        self(),
+        {:create_global_dispo, scope},
+        :timer.seconds(diff_seconds) + :timer.minutes(1)
+      )
+
+      {:ok, %{scope: scope, global_dispo: global_dispo}}
+    else
+      send(self(), {:create_global_dispo, scope})
+      {:ok, %{scope: scope, global_dispo: nil}}
+    end
   end
 
   @impl true
@@ -74,7 +93,7 @@ defmodule Disposocial3.GlobalDispoMgr do
   end
 
   @impl true
-  def handle_call(:get_global_dispo_id, _from, %{global_dispo: dispo} = state) do
-    {:reply, {:ok, dispo.id}, state}
+  def handle_call(:get_global_dispo_id, _from, %{global_dispo: global_dispo} = state) do
+    {:reply, {:ok, global_dispo.id}, state}
   end
 end

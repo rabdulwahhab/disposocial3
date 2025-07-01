@@ -57,8 +57,10 @@ defmodule Disposocial3Web.DispoLive.Show do
           </li>
           <li class="list-row">
             <.icon class="size-4 text-error" name="hero-exclamation-circle" />
-            <p class="text-error">Expiring:</p>
-            <p class="text-error">{Util.display_death_datetime(@dispo.death)}</p>
+            <p class="text-error grod-col-2">Expiring:</p>
+            <p class="text-error list-col-wrap">
+              {Util.display_death_datetime(@dispo.death, @current_scope.user.timezone)}
+            </p>
           </li>
           <li>
             <div class="collapse collapse-arrow collapse-open">

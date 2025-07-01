@@ -20,6 +20,8 @@ config :disposocial3, :scopes,
     test_login_helper: :register_and_log_in_user
   ]
 
+config :elixir, :time_zone_database, Tzdata.TimeZoneDatabase
+
 config :disposocial3,
   ecto_repos: [Disposocial3.Repo],
   generators: [timestamp_type: :utc_datetime]

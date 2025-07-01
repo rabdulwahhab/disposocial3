@@ -180,12 +180,22 @@ defmodule Disposocial3.Accounts do
   end
 
   def change_user_location(user, attrs \\ %{}, opts \\ []) do
-    User.location_changeset(user, attrs, opts)
+    User.coordinates_changeset(user, attrs, opts)
   end
 
   def update_user_location(user, attrs) do
     user
     |> change_user_location(attrs)
+    |> Repo.update()
+  end
+
+  def change_geo_data(user, attrs \\ %{}, opts \\ []) do
+    User.geoapify_changeset(user, attrs, opts)
+  end
+
+  def update_user_geo_data(user, attrs) do
+    user
+    |> change_geo_data(attrs)
     |> Repo.update()
   end
 

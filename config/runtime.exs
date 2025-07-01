@@ -20,6 +20,14 @@ if System.get_env("PHX_SERVER") do
   config :disposocial3, Disposocial3Web.Endpoint, server: true
 end
 
+geoapify_api_key =
+  System.get_env("GEOAPIFY_API_KEY") ||
+    raise """
+    environment variable GEOAPIFY_API_KEY is missing.
+    """
+
+config :disposocial3, Disposocial3.Geoapify, api_key: geoapify_api_key
+
 if config_env() == :prod do
   database_path =
     System.get_env("DATABASE_PATH") ||

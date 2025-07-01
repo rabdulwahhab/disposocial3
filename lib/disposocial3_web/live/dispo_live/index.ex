@@ -1,7 +1,7 @@
 defmodule Disposocial3Web.DispoLive.Index do
   use Disposocial3Web, :live_view
 
-  alias Disposocial3.{Dispos, Accounts, Accounts.Scope}
+  alias Disposocial3.{Dispos, Accounts, Accounts.Scope, Geoapify}
   alias Disposocial3Web.Presence
   # Default Dispo discovery radius in miles
   @default_radius 5
@@ -111,6 +111,16 @@ defmodule Disposocial3Web.DispoLive.Index do
 
   @impl true
   def handle_event("location_updated", %{"lat" => latitude, "long" => longitude}, socket) do
+    geodata =
+      case Geoapify.reverse_geocode(latitude, longitude) do
+        {:ok, data} ->
+          data
+
+        {:error, error} ->
+          Logger.info(inspect(error))
+          nil
+      end
+
     local_dispos =
       Dispos.get_all_near(
         latitude,
@@ -125,15 +135,22 @@ defmodule Disposocial3Web.DispoLive.Index do
     socket =
       socket
       |> assign(:location, {latitude, longitude})
+      |> assign(:geodata, geodata)
       |> stream(:local_dispos, local_dispos)
 
     if socket.assigns.current_scope do
-      with {:ok, user} <-
+      with {:ok, user1} <-
              Accounts.update_user_location(socket.assigns.current_scope.user, %{
                latitude: latitude,
                longitude: longitude
              }),
-           new_scope <- Scope.update_user(socket.assigns.current_scope, user) do
+           true <- not is_nil(geodata),
+           {:ok, user2} <-
+             Accounts.update_user_geo_data(user1, %{
+               location: Geoapify.format_location(geodata),
+               timezone: geodata["timezone"]["name"]
+             }),
+           new_scope <- Scope.update_user(socket.assigns.current_scope, user2) do
         {:noreply, assign(socket, :current_scope, new_scope)}
       end
     else

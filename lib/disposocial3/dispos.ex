@@ -80,6 +80,11 @@ defmodule Disposocial3.Dispos do
     Repo.one(q)
   end
 
+  def get_dispos_by_user(user_id) do
+    from(d in Dispo, where: d.user_id == ^user_id)
+    |> Repo.all()
+  end
+
   def get_death_by_id(id) do
     q = from(d in Dispo, where: d.id == ^id, select: d.death)
     Repo.one(q)

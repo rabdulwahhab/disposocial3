@@ -1,23 +1,22 @@
 defmodule Disposocial3.Geoapify do
   @api_base "https://api.geoapify.com/v1"
 
-  # def get_location_by_coords(lat, lng) do
-  #   raise "FIXME"
-  #   geo_api_key = Application.get_env(:Disposocial3, :geo_api_key)
-  #   # TODO from here down
-  #   access_str = "apiKey=#{geo_api_key}"
-  #   latlong_str = "lat=#{to_string(lat)}&lon=#{to_string(lng)}"
-  #   url = "#{Path.join(@api_base, "/geocode/reverse")}?#{latlong_str}&#{access_str}"
-  #   resp = HTTPoison.get!(url)
-  #   IO.inspect(resp, label: "Geocode API response:")
-  #   raise "TODO"
-  #   # data =
-  #   #   resp
-  #   #   |> Map.get(:body)
-  #   #   |> Jason.decode!()
-  #   #   |> Map.get("data")
+  def reverse_geocode(lat, lng) do
+    api_key = Application.get_env(:disposocial3, Disposocial3.Geoapify)[:api_key]
+    auth_str = "apiKey=#{api_key}"
+    params_str = "lat=#{to_string(lat)}&lon=#{to_string(lng)}"
+    url = "#{Path.join(@api_base, "/geocode/reverse")}?#{params_str}&#{auth_str}"
+    task = Task.async(fn -> Req.get(url) end)
 
-  #   # TODO
-  # end
+    clean = fn data -> List.first(data["features"])["properties"] end
 
+    case Task.await(task) do
+      {:ok, response} -> {:ok, clean.(response.body)}
+      any -> any
+    end
+  end
+
+  def format_location(geodata) do
+    "#{geodata["street"]} - #{geodata["city"]}, #{geodata["state"]} #{String.upcase(geodata["country_code"])}"
+  end
 end
