@@ -17,7 +17,6 @@ defmodule Disposocial3Web.UI do
         <img src={~p"/images/logo.png"} class="w-50 rounded-full" />
         <div>
           <h1 class="text-5xl font-bold">{@title}</h1>
-          <span class="text-xs font-light">beta</span>
           <p class="py-6">
             {@subtitle}
           </p>
