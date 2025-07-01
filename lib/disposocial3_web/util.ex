@@ -42,8 +42,8 @@ defmodule Disposocial3Web.Util do
 
   def display_post_time(datetime) do
     cond do
-      today?(datetime) -> Calendar.strftime(datetime, "%I:%M %p %Z")
-      true -> Calendar.strftime(datetime, "%a %I:%M %p %Z")
+      today?(datetime) -> Calendar.strftime(datetime, "%I:%M%P %Z")
+      true -> Calendar.strftime(datetime, "%a %I:%M%P %Z")
     end
   end
 
@@ -53,7 +53,7 @@ defmodule Disposocial3Web.Util do
   end
 
   def display_death_datetime(datetime) do
-    Calendar.strftime(datetime, "%a %b %d @ %I:%M %p %Z")
+    Calendar.strftime(datetime, "%a %b %d @ %I:%M%P %Z")
   end
 
   defp today?(dt) do
