@@ -29,6 +29,7 @@ config :disposocial3,
 # Configures the endpoint
 config :disposocial3, Disposocial3Web.Endpoint,
   url: [host: "localhost"],
+  check_origin: ["https://disposocial.com", "https://www.disposocial.com"],
   adapter: Bandit.PhoenixAdapter,
   render_errors: [
     formats: [html: Disposocial3Web.ErrorHTML, json: Disposocial3Web.ErrorJSON],
